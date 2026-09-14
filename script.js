@@ -1138,32 +1138,6 @@ function renderTables() {
           }
 
           const formattedRegDate = p.regDate
-          
-          } else {
-            actionHtml = `
-              <div style="display: flex; gap: 6px; align-items: center;">
-                <button 
-                  onclick="approveCurrentStep('${p.regNo}')" 
-                  title="Setujui Proyek"
-                  style="background: #16a34a; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                >
-                  ✓ ACC
-                </button>
-                <button 
-                  onclick="rejectCurrentStep('${p.regNo}')" 
-                  title="Tolak / Minta Revisi Proyek"
-                  style="background: #dc2626; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                >
-                  ✕ Tolak
-                </button>
-                <span class="action" onclick="viewProjectDetail('${p.regNo}')" style="cursor: pointer; font-size: 11.5px; color: #d97706; text-decoration: underline; font-weight: 600;">
-                  Berkas
-                </span>
-              </div>
-            `;
-          }
-
-          const formattedRegDate = p.regDate
             ? new Date(p.regDate).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
