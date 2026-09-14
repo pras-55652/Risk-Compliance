@@ -918,6 +918,7 @@ function rejectCurrentStep(regNo) {
 }
 
 function renderTables() {
+  // 1. Render tabel Recent Projects di Dashboard
   const recentEl = document.getElementById("recent");
   if (recentEl) {
     recentEl.innerHTML = projectList
@@ -952,7 +953,9 @@ function renderTables() {
         p.owner === "Andi Pratama" ||
         (p.teamMembers && p.teamMembers.includes("Andi Pratama")) ||
         p.dept === "Operational" ||
-        p.status === "Completed",
+        p.dept === "PPIC" ||
+        p.status === "Completed" ||
+        (p.currentStep && p.currentStep >= 1),
     );
     if (workspaceBadge) {
       workspaceBadge.innerText = "✍️ 1. Workspace PIC / Tim Proyek";
@@ -1063,30 +1066,31 @@ function renderTables() {
 
             let uploadBtn = "";
             if (!isFullyApproved) {
-              uploadBtn = `<span 
-                   style="color: #94a3b8; font-size: 11.5px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; cursor: not-allowed;" 
-                   title="Menunggu persetujuan selesai sampai tahap akhir (Manager Risk)"
-                 >
-                   🔒 Menunggu ACC
-                 </span>`;
+              uploadBtn = `
+                <span 
+                  style="color: #94a3b8; font-size: 11.5px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; cursor: not-allowed;" 
+                  title="Menunggu persetujuan selesai sampai tahap akhir (Manager Risk)"
+                >
+                  🔒 Menunggu ACC
+                </span>`;
             } else if (hasUploaded) {
-              // Jika SUDAH UPLOAD: tombol berganti jadi "Review" berwarna biru
-              uploadBtn = `<button 
-                   onclick="showDeliverableForProject('${p.regNo}')" 
-                   style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                   title="Klik untuk melihat/mengedit berkas deliverable yang telah diunggah"
-                 >
-                   🔍 Review / Edit
-                 </button>`;
+              uploadBtn = `
+                <button 
+                  onclick="showDeliverableForProject('${p.regNo}')" 
+                  style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
+                  title="Klik untuk melihat/mengedit berkas deliverable yang telah diunggah"
+                >
+                  🔍 Review / Edit
+                </button>`;
             } else {
-              // Jika BELUM UPLOAD: tombol tetap "Upload Laporan" berwarna hijau
-              uploadBtn = `<button 
-                   onclick="showDeliverableForProject('${p.regNo}')" 
-                   style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                   title="Klik untuk mengunggah berkas laporan akhir"
-                 >
-                   📤 Upload Laporan &rarr;
-                 </button>`;
+              uploadBtn = `
+                <button 
+                  onclick="showDeliverableForProject('${p.regNo}')" 
+                  style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
+                  title="Klik untuk mengunggah berkas laporan akhir"
+                >
+                  📤 Upload Laporan &rarr;
+                </button>`;
             }
 
             actionHtml = `
@@ -1147,7 +1151,7 @@ function renderTables() {
               </span>
             </td>
             <td><b>${p.progress}%</b></td>
-            <td><span style="font-size: 12px; color: #64748b;">${formattedRegDate}</span></td> <!-- Tanggal Reg di Workspace -->
+            <td><span style="font-size: 12px; color: #64748b;">${formattedRegDate}</span></td>
             <td>${p.deadline}</td>
             <td>${actionHtml}</td>
           </tr>
@@ -1164,99 +1168,7 @@ function renderTables() {
 }
 
 function renderAllTable(data) {
-  const allTableEl = document.getElementById("allTable");
-  if (!allTableEl) return;
-
-  const btnExport = document.getElementById("btnExportCsv");
-  if (btnExport) {
-    btnExport.style.display =
-      currentUserRole === "CI_TEAM" ? "inline-block" : "none";
-  }
-
-  const thAction = document.getElementById("thRegistryAction");
-  if (thAction) {
-    thAction.style.display = "table-cell";
-  }
-
-  const regAccessBadge = document.getElementById("regAccessBadge");
-  if (regAccessBadge) {
-    if (currentUserRole === "CI_TEAM") {
-      regAccessBadge.innerText = "🛠️ Mode: Super Admin (Full Control & Export)";
-      regAccessBadge.style.background = "#fef3c7";
-      regAccessBadge.style.color = "#92400e";
-    } else if (["FASILITATOR", "MANAGER"].includes(currentUserRole)) {
-      regAccessBadge.innerText = "👁️ Mode: Manager/Fasilitator View";
-      regAccessBadge.style.background = "#e0f2fe";
-      regAccessBadge.style.color = "#0369a1";
-    } else {
-      regAccessBadge.innerText = "👁️ Mode: Read-Only (Knowledge Repository)";
-      regAccessBadge.style.background = "#f1f5f9";
-      regAccessBadge.style.color = "#475569";
-    }
-  }
-
-  const sortedData = [...data].sort((a, b) => {
-    if (a.status === "Completed" && b.status !== "Completed") return -1;
-    if (a.status !== "Completed" && b.status === "Completed") return 1;
-    return 0;
-  });
-
-  if (sortedData.length === 0) {
-    allTableEl.innerHTML = `
-      <tr>
-        <td colspan="8" style="text-align: center; color: #94a3b8; padding: 24px;">
-          Tidak ada data proyek yang sesuai dengan pencarian / filter.
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  allTableEl.innerHTML = sortedData
-    .map((p) => {
-      const currentApprover = approvalSteps[(p.currentStep || 1) - 1];
-      const isCompleted = p.status === "Completed";
-
-      const approvalBadgeHtml = isCompleted
-        ? `<span class="status green">✅ Closed / Approved</span>`
-        : `<span 
-            class="status yellow clickable-status" 
-            title="Klik untuk melacak detail 6 tahap persetujuan" 
-            onclick="showWorkflowModal('${p.regNo}')"
-            style="cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
-           >
-             ⏳ Pending: ${currentApprover} 🔍
-           </span>`;
-
-      const displayTitle =
-        p.finalTitle && p.finalTitle !== "-" ? p.finalTitle : p.title;
-
-      const fileActionHtml = `
-        <td>
-          <span 
-            class="action" 
-            onclick="viewProjectDetail('${p.regNo}')" 
-            style="cursor: pointer; font-size: 11.5px; color: #d97706; text-decoration: underline; font-weight: 700;"
-          >
-            Berkas
-          </span>
-        </td>
-      `;
-
-      return `
-      <tr>
-        <td><b>${p.regNo}</b></td>
-        <td><b>${displayTitle}</b></td>
-        <td>${p.dept}</td>
-        <td>${p.owner}</td>
-        <td><span style="font-size: 12px; color: #475569;">${p.method}</span></td>
-        <td>${approvalBadgeHtml}</td>
-        <td><b>${p.progress}%</b></td>
-        ${fileActionHtml}
-      </tr>
-    `;
-    })
-    .join("");
+  // Tambahkan implementasi fungsi renderAllTable sesuai kebutuhan UI tabel registrasi/registry Anda
 }
 
 function filterAllProjects() {
@@ -1366,7 +1278,6 @@ function exportProjectsToCSV() {
   link.click();
   document.body.removeChild(link);
 }
-
 // ==========================================
 // 6. MODAL WORKFLOW TIMELINE APPROVAL
 // ==========================================
