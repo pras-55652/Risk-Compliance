@@ -1063,21 +1063,24 @@ function renderTables() {
             roleLabel = "Finance Verifier";
           else if (currentUserRole === "MGR_RISK") roleLabel = "Risk Approver";
 
-         let actionHtml = "";
+        let actionHtml = "";
           if (currentUserRole === "PIC") {
-            const isFullyApproved = p.status === "Completed";
-            const hasUploaded = p.deliverableFile && p.deliverableFile !== "-";
+            // Disesuaikan dengan status "Closed" yang ada di gambar UI kamu
+            const isFullyApproved = p.status === "Closed" || p.status === "Completed";
+            const hasUploaded = p.deliverableFile && p.deliverableFile !== "" && p.deliverableFile !== "-";
 
             let uploadBtn = "";
             if (!isFullyApproved) {
+              // 1. Jika BELUM di-ACC sampai Manager Risk (Masih Pending)
               uploadBtn = `
                 <span 
-                  style="color: #94a3b8; font-size: 11.5px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; cursor: not-allowed;" 
+                  style="color: #64748b; font-size: 11px; font-weight: 600; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 4px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 4px;" 
                   title="Menunggu persetujuan selesai sampai tahap akhir (Manager Risk)"
                 >
                   🔒 Menunggu ACC
                 </span>`;
             } else if (hasUploaded) {
+              // 2. Jika SUDAH ACC & SUDAH upload berkas deliverable
               uploadBtn = `
                 <button 
                   type="button"
@@ -1087,6 +1090,7 @@ function renderTables() {
                   🔍 Review / Edit
                 </button>`;
             } else {
+              // 3. Jika SUDAH ACC tapi BELUM upload berkas
               uploadBtn = `
                 <button 
                   type="button"
