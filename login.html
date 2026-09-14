@@ -23,6 +23,13 @@
       label { font-size: 12px; font-weight: 600; color: var(--slate); }
       input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; background: #fff; }
       input:focus, select:focus { border-color: var(--primary); }
+      
+      /* Styling khusus untuk bungkus input password + tombol lihat sandi */
+      .password-wrapper { position: relative; display: flex; align-items: center; }
+      .password-wrapper input { padding-right: 45px; }
+      .btn-toggle-pass { position: absolute; right: 10px; background: none; border: none; font-size: 12px; color: var(--slate); cursor: pointer; font-weight: 600; padding: 4px; }
+      .btn-toggle-pass:hover { color: var(--primary); }
+
       .dev-box { background: #fffbeb; border: 1px dashed #f59e0b; padding: 12px; border-radius: 6px; margin-bottom: 14px; display: none; }
       .dev-title { font-size: 11px; font-weight: 700; color: #b45309; margin-bottom: 6px; text-transform: uppercase; }
       button.btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; transition: background 0.2s; }
@@ -53,11 +60,10 @@
       <form onsubmit="handleAuth(event)">
         <div class="field">
           <label>Email Perusahaan / Akun *</label>
-          <!-- oninput mendeteksi secara langsung ketikan email -->
           <input type="email" id="email" placeholder="email@bakrie-autoparts.com" oninput="checkDeveloperEmail(this.value)" required />
         </div>
 
-        <!-- Dropdown Khusus Developer: HANYA MUNCUL JIKA EMAIL mprahastika@gmail.com -->
+        <!-- Dropdown Khusus Developer -->
         <div class="dev-box" id="devRoleBox">
           <div class="dev-title">⚙️ Developer Mode (Pilih Role Testing)</div>
           <select id="devSelectedRole">
@@ -72,7 +78,11 @@
 
         <div class="field">
           <label>Password *</label>
-          <input type="password" id="password" placeholder="Minimal 6 karakter" required minlength="6" />
+          <!-- Fitur Lihat Sandi ditambahkan di sini -->
+          <div class="password-wrapper">
+            <input type="password" id="password" placeholder="Minimal 6 karakter" required minlength="6" />
+            <button type="button" class="btn-toggle-pass" id="togglePassBtn" onclick="togglePasswordVisibility()">Lihat</button>
+          </div>
         </div>
 
         <button type="submit" class="btn-submit" id="submitBtn">
@@ -106,26 +116,34 @@
 
       let isLoginMode = true;
 
-      // Fungsi untuk memunculkan kotak dropdown KHUSUS jika emailnya mprahastika@gmail.com
-      function checkDeveloperEmail(email) {
-        const devBox = document.getElementById("devRoleBox");
-        if (email.trim().toLowerCase() === "mprahastika@gmail.com") {
-          devBox.style.display = "block"; // Muncul khusus developer
+      // Fungsi untuk melihat/menyembunyikan sandi
+      function togglePasswordVisibility() {
+        const passwordInput = document.getElementById("password");
+        const toggleBtn = document.getElementById("togglePassBtn");
+        
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleBtn.innerText = "Sembunyi";
         } else {
-          devBox.style.display = "none";  // Disembunyikan untuk email orang lain
+          passwordInput.type = "password";
+          toggleBtn.innerText = "Lihat";
         }
       }
 
-      // Fungsi menentukan role: Ketat memisahkan email kamu vs email umum
+      function checkDeveloperEmail(email) {
+        const devBox = document.getElementById("devRoleBox");
+        if (email.trim().toLowerCase() === "mprahastika@gmail.com") {
+          devBox.style.display = "block";
+        } else {
+          devBox.style.display = "none";
+        }
+      }
+
       function determineRole(email) {
         const lowerEmail = email.toLowerCase();
-        
-        // Pengecualian mutlak: Hanya mprahastika@gmail.com yang baca dari dropdown pilihan testing
         if (lowerEmail === "mprahastika@gmail.com") {
           return document.getElementById("devSelectedRole").value;
         }
-        
-        // Aturan otomatis untuk email orang lain (Karyawan biasa / Manager asli)
         if (lowerEmail.includes("admin") || lowerEmail.includes("ci")) {
           return "CI_TEAM";
         } else if (lowerEmail.includes("manager")) {
@@ -137,7 +155,7 @@
         } else if (lowerEmail.includes("fasilitator")) {
           return "FASILITATOR";
         } else {
-          return "PIC"; // Orang lain yang bukan admin/manager otomatis jadi PIC
+          return "PIC";
         }
       }
 
@@ -160,8 +178,6 @@
         e.preventDefault();
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-        
-        // Menentukan role berdasarkan fungsi ketat di atas
         const assignedRole = determineRole(email);
 
         if (isLoginMode) {
@@ -188,14 +204,10 @@
 
       function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        
         auth.signInWithPopup(provider)
           .then((result) => {
             const userEmail = result.user.email;
-            
-            // Tentukan role dengan fungsi yang sama amannya untuk login Google
             const assignedRole = determineRole(userEmail);
-
             localStorage.setItem("binnovate_user_role", assignedRole);
             window.location.href = "index.html";
           })
