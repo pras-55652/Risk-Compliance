@@ -1,3 +1,7 @@
+// Pengaman: Jika role belum tersimpan atau kosong, set default ke PIC agar menu tidak hilang
+if (!window.currentUserRole) {
+  window.currentUserRole = "PIC"; 
+}
 // ==========================================
 // 1. DATA MASTER & HAK AKSES ROLE
 // ==========================================
