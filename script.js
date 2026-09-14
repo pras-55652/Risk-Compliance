@@ -1338,7 +1338,63 @@ function closeWorkflowModal() {
   const modal = document.getElementById("workflowModal");
   if (modal) modal.style.display = "none";
 }
+// ==========================================
+// TAMBAHAN: MODAL DETAIL REGISTRASI PROYEK (MENU BERKAS)
+// ==========================================
+function viewProjectDetail(regNo) {
+  const p = projectList.find(item => item.regNo === regNo);
+  if (!p) {
+    alert("Data proyek tidak ditemukan.");
+    return;
+  }
 
+  let modal = document.getElementById("projectDetailModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "projectDetailModal";
+    modal.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;";
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div style="background: white; width: 650px; max-height: 85vh; border-radius: 8px; padding: 24px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+        <h3 style="margin: 0; color: #1e293b; font-size: 18px;">📋 Detail Registrasi Proyek: ${p.regNo}</h3>
+        <button onclick="closeProjectDetailModal()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b;">&times;</button>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; color: #334155;">
+        <div><b>Departemen:</b> ${p.dept || '-'}</div>
+        <div><b>Section / Area:</b> ${p.section || '-'}</div>
+        <div><b>Metode Inovasi:</b> ${p.method || '-'}</div>
+        <div><b>Kategori Proyek:</b> ${p.category || '-'}</div>
+        <div style="grid-column: span 2;"><b>Tema Proyek (Registrasi):</b> ${p.title || '-'}</div>
+        <div><b>Leader / PIC:</b> ${p.owner || '-'}</div>
+        <div><b>Kontak PIC:</b> ${p.contact || '-'}</div>
+        <div><b>Nama Tim:</b> ${p.teamName || '-'}</div>
+        <div style="grid-column: span 2;"><b>Anggota Tim:</b> ${p.teamMembers || '-'}</div>
+        <div style="grid-column: span 2;"><b>Problem Statement:</b><br><div style="background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 4px; border: 1px solid #e2e8f0;">${p.problemStatement || '-'}</div></div>
+        <div style="grid-column: span 2;"><b>Improvement Target:</b><br><div style="background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 4px; border: 1px solid #e2e8f0;">${p.improvementTarget || '-'}</div></div>
+        <div><b>Estimasi Cost Saving:</b> Rp ${Number(p.costSavingVal || 0).toLocaleString('id-ID')} / Tahun</div>
+        <div><b>Estimasi Investasi:</b> Rp ${Number(p.costInvestmentVal || 0).toLocaleString('id-ID')}</div>
+        <div><b>Target Deadline:</b> ${p.deadline || '-'}</div>
+        <div><b>Status Saat Ini:</b> <span style="font-weight: 600; color: #0284c7;">${p.status} (Step ${p.currentStep || 1})</span></div>
+      </div>
+
+      <div style="text-align: right; margin-top: 20px;">
+        <button onclick="closeProjectDetailModal()" style="background: #475569; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;">Tutup</button>
+      </div>
+    </div>
+  `;
+  modal.style.display = "flex";
+}
+
+function closeProjectDetailModal() {
+  const modal = document.getElementById("projectDetailModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
 // ==========================================
 // 7. MENU 5: PROJECT DELIVERABLES
 // ==========================================
