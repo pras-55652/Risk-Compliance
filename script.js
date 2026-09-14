@@ -1063,7 +1063,7 @@ function renderTables() {
             roleLabel = "Finance Verifier";
           else if (currentUserRole === "MGR_RISK") roleLabel = "Risk Approver";
 
-          let actionHtml = "";
+         let actionHtml = "";
           if (currentUserRole === "PIC") {
             const isFullyApproved = p.status === "Completed";
             const hasUploaded = p.deliverableFile && p.deliverableFile !== "-";
@@ -1097,7 +1097,6 @@ function renderTables() {
                 </button>`;
             }
 
-            // GUNAKAN TOMBOL <button> LANGSUNG AGAR BISA DI-KLIK DENGAN AMAN
             actionHtml = `
               <div style="display: flex; gap: 8px; align-items: center;">
                 <button 
@@ -1110,7 +1109,34 @@ function renderTables() {
                 ${uploadBtn}
               </div>
             `;
+          } else {
+            actionHtml = `
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button 
+                  onclick="approveCurrentStep('${p.regNo}')" 
+                  title="Setujui Proyek"
+                  style="background: #16a34a; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
+                >
+                  ✓ ACC
+                </button>
+                <button 
+                  onclick="rejectCurrentStep('${p.regNo}')" 
+                  title="Tolak / Minta Revisi Proyek"
+                  style="background: #dc2626; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
+                >
+                  ✕ Tolak
+                </button>
+                <button 
+                  type="button"
+                  onclick="viewProjectDetail('${p.regNo}')" 
+                  style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                >
+                  📂 Berkas
+                </button>
+              </div>
+            `;
           }
+          
           } else {
             actionHtml = `
               <div style="display: flex; gap: 6px; align-items: center;">
