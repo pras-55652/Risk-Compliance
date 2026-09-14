@@ -1136,6 +1136,8 @@ function renderTables() {
               </div>
             `;
           }
+
+          const formattedRegDate = p.regDate
           
           } else {
             actionHtml = `
