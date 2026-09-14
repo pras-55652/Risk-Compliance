@@ -24,11 +24,11 @@
       input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; background: #fff; }
       input:focus, select:focus { border-color: var(--primary); }
       
-      /* Styling khusus untuk bungkus input password + tombol lihat sandi */
-      .password-wrapper { position: relative; display: flex; align-items: center; }
-      .password-wrapper input { padding-right: 45px; }
-      .btn-toggle-pass { position: absolute; right: 10px; background: none; border: none; font-size: 12px; color: var(--slate); cursor: pointer; font-weight: 600; padding: 4px; }
-      .btn-toggle-pass:hover { color: var(--primary); }
+      /* Perbaikan CSS agar tombol Lihat Sandi tampil pas di dalam kotak password */
+      .password-container { position: relative; width: 100%; display: flex; align-items: center; }
+      .password-container input { width: 100%; padding-right: 60px; }
+      .btn-eye { position: absolute; right: 8px; background: #f1f5f9; border: 1px solid #cbd5e1; color: var(--slate); font-size: 11px; font-weight: 600; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+      .btn-eye:hover { background: #e2e8f0; color: var(--dark); }
 
       .dev-box { background: #fffbeb; border: 1px dashed #f59e0b; padding: 12px; border-radius: 6px; margin-bottom: 14px; display: none; }
       .dev-title { font-size: 11px; font-weight: 700; color: #b45309; margin-bottom: 6px; text-transform: uppercase; }
@@ -78,10 +78,9 @@
 
         <div class="field">
           <label>Password *</label>
-          <!-- Fitur Lihat Sandi ditambahkan di sini -->
-          <div class="password-wrapper">
+          <div class="password-container">
             <input type="password" id="password" placeholder="Minimal 6 karakter" required minlength="6" />
-            <button type="button" class="btn-toggle-pass" id="togglePassBtn" onclick="togglePasswordVisibility()">Lihat</button>
+            <button type="button" class="btn-eye" id="togglePassBtn" onclick="togglePasswordVisibility()">Lihat</button>
           </div>
         </div>
 
