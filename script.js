@@ -1076,31 +1076,37 @@ function renderTables() {
             } else if (hasUploaded) {
               uploadBtn = `
                 <button 
+                  type="button"
                   onclick="showDeliverableForProject('${p.regNo}')" 
                   style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                  title="Klik untuk melihat/mengedit berkas deliverable yang telah diunggah"
                 >
                   🔍 Review / Edit
                 </button>`;
             } else {
               uploadBtn = `
                 <button 
+                  type="button"
                   onclick="showDeliverableForProject('${p.regNo}')" 
                   style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                  title="Klik untuk mengunggah berkas laporan akhir"
                 >
                   📤 Upload Laporan &rarr;
                 </button>`;
             }
 
+            // GUNAKAN TOMBOL <button> LANGSUNG AGAR BISA DI-KLIK DENGAN AMAN
             actionHtml = `
               <div style="display: flex; gap: 8px; align-items: center;">
-                <span class="action" onclick="viewProjectDetail('${p.regNo}')" style="cursor: pointer; font-size: 11.5px; color: #0284c7; text-decoration: underline; font-weight: 600;">
-                  Berkas
-                </span>
+                <button 
+                  type="button"
+                  onclick="viewProjectDetail('${p.regNo}')" 
+                  style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                >
+                  📂 Berkas
+                </button>
                 ${uploadBtn}
               </div>
             `;
+          }
           } else {
             actionHtml = `
               <div style="display: flex; gap: 6px; align-items: center;">
