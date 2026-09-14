@@ -2086,3 +2086,23 @@ function closeBerkasModal() {
   const modal = document.getElementById("berkasModal");
   if (modal) modal.style.display = "none";
 }
+
+function goToDeliverables(regNo) {
+  // 1. Simulasikan klik pada menu sidebar "Project Deliverables"
+  // (Sesuaikan selector atau ID tombol sidebar Project Deliverables di HTML kamu)
+  const deliverablesNav = document.querySelector('[data-target="deliverables"]') || 
+                          document.getElementById("btn-deliverables") ||
+                          Array.from(document.querySelectorAll('a, button, li, div'))
+                            .find(el => el.textContent.includes('Project Deliverables'));
+
+  if (deliverablesNav) {
+    deliverablesNav.click(); // Klik otomatis menu sidebar
+  }
+
+  // 2. Buka data/modal deliverable sesuai regNo proyek tersebut
+  if (typeof showDeliverableForProject === "function") {
+    showDeliverableForProject(regNo);
+  } else if (typeof openDeliverableModal === "function") {
+    openDeliverableModal(regNo);
+  }
+}
