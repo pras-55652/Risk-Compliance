@@ -2106,3 +2106,22 @@ function goToDeliverables(regNo) {
     openDeliverableModal(regNo);
   }
 }
+function goToDeliverables(regNo) {
+  // 1. Cari elemen menu sidebar "Project Deliverables" lalu klik secara otomatis
+  const sidebarButtons = Array.from(document.querySelectorAll('div, a, button, li'));
+  const deliverablesMenu = sidebarButtons.find(el => 
+    el.textContent.trim() === 'Project Deliverables' || 
+    el.textContent.trim().includes('Project Deliverables')
+  );
+
+  if (deliverablesMenu) {
+    deliverablesMenu.click(); // Pindah ke tampilan Project Deliverables
+  }
+
+  // 2. Buka form/detail deliverable untuk proyek tersebut
+  setTimeout(() => {
+    if (typeof showDeliverableForProject === 'function') {
+      showDeliverableForProject(regNo);
+    }
+  }, 200);
+}
