@@ -1094,7 +1094,7 @@ function renderTables() {
               uploadBtn = `
                 <button 
                   type="button"
-                  onclick="showDeliverableForProject('${p.regNo}')" 
+                  onclick="goToDeliverables('${p.regNo}')" 
                   style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
                 >
                   📤 Upload Laporan &rarr;
