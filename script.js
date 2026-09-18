@@ -2227,19 +2227,40 @@ window.showDeliverableForProject = function(regNo) {
 };
 
 // ==========================================
-// PENCEGAT TOMBOL UNDUH (MEMBUKA FILE PDF ASLI)
+// KODE FINAL: UPLOAD, SIMPAN, & BUKA PDF ASLI
 // ==========================================
+
+// 1. Tempat penyimpanan data file sementara di memori browser
+window.uploadedDeliverableFiles = window.uploadedDeliverableFiles || {};
+
+// 2. Fungsi saat tombol "Upload & Simpan Berkas" dipencet
+window.saveDeliverableFile = function(regNo) {
+  const fileInput = document.querySelector('input[type="file"]');  
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    const fileURL = URL.createObjectURL(file);
+    
+    window.uploadedDeliverableFiles[regNo] = {
+      name: file.name,
+      url: fileURL
+    };
+    
+    alert("Berhasil! File " + file.name + " telah disimpan di memori browser.");
+  } else {
+    alert("Silakan pilih file PDF terlebih dahulu.");
+  }
+};
+
+// 3. Pencegat otomatis untuk tombol Unduh/Buka PDF (Membuka file asli)
 document.addEventListener('click', function(e) {
-  // Cari tombol atau elemen yang teksnya mengandung "Unduh" atau "PDF"
   const target = e.target.closest('button, a');
   if (target && (target.textContent.includes('Unduh') || target.textContent.includes('PDF'))) {
     
-    // Ambil nomor registrasi proyek yang sedang aktif di dropdown halaman
     const selectEl = document.getElementById("delivProjectSelect");
     const regNo = selectEl ? selectEl.value : null;
     
     if (regNo && window.uploadedDeliverableFiles && window.uploadedDeliverableFiles[regNo]) {
-      // Hentikan fungsi simulasi bawaan template asli
+      // Hentikan simulasi bawaan template asli
       e.stopImmediatePropagation();
       e.preventDefault();
       
@@ -2248,4 +2269,4 @@ document.addEventListener('click', function(e) {
       window.open(fileData.url, '_blank');
     }
   }
-}, true); // True (capturing phase) agar mendahului fungsi lama
+}, true);
