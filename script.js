@@ -2149,3 +2149,79 @@ window.showDeliverableForProject = function(regNo) {
     }
   }, 200);
 };
+
+// Objek untuk menyimpan data file PDF yang di-upload berdasarkan nomor registrasi proyek
+window.uploadedDeliverableFiles = window.uploadedDeliverableFiles || {};
+
+// ==========================================
+// PENYIMPANAN & PEMBUKAAN FILE PDF LOKAL (BLOB URL)
+// ==========================================
+
+// 1. Inisialisasi tempat penyimpanan data file sementara di memori browser
+window.uploadedDeliverableFiles = window.uploadedDeliverableFiles || {};
+
+// 2. Fungsi untuk menyimpan file saat tombol "Upload & Simpan Berkas" dipencet
+window.saveDeliverableFile = function(regNo) {
+  // Cari input file di halaman
+  const fileInput = document.querySelector('input[type="file"]');  
+  
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    
+    // Buat URL objek lokal agar file bisa dibaca browser
+    const fileURL = URL.createObjectURL(file);
+    
+    // Simpan ke dalam objek global berdasarkan nomor registrasi (regNo)
+    window.uploadedDeliverableFiles[regNo] = {
+      name: file.name,
+      url: fileURL
+    };
+    
+    alert("Berhasil! File " + file.name + " telah disimpan dan siap dibuka.");
+  } else {
+    alert("Silakan pilih file PDF terlebih dahulu sebelum mengunggah.");
+  }
+};
+
+// 3. Fungsi untuk membuka PDF saat tombol "Unduh / Buka PDF" dipencet
+window.openDeliverablePdf = function(regNo) {
+  const fileData = window.uploadedDeliverableFiles[regNo];
+  
+  if (fileData && fileData.url) {
+    // Membuka file PDF asli di tab baru browser
+    window.open(fileData.url, '_blank');
+  } else {
+    alert("Belum ada file PDF asli yang di-upload untuk proyek ini pada sesi ini.");
+  }
+};
+
+// 4. Fungsi navigasi halaman Deliverables (yang sudah kita buat sebelumnya)
+window.goToDeliverables = function(regNo) {
+  if (typeof showPage === 'function') {
+    showPage('deliverables');
+  }
+  setTimeout(() => {
+    const selectEl = document.getElementById("delivProjectSelect");
+    if (selectEl) {
+      selectEl.value = regNo;
+      if (typeof onDeliverableProjectChange === 'function') {
+        onDeliverableProjectChange();
+      }
+    }
+  }, 200);
+};
+
+window.showDeliverableForProject = function(regNo) {
+  if (typeof showPage === 'function') {
+    showPage('deliverables');
+  }
+  setTimeout(() => {
+    const selectEl = document.getElementById("delivProjectSelect");
+    if (selectEl) {
+      selectEl.value = regNo;
+      if (typeof onDeliverableProjectChange === 'function') {
+        onDeliverableProjectChange();
+      }
+    }
+  }, 200);
+};
