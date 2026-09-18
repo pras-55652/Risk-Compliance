@@ -2106,66 +2106,46 @@ function goToDeliverables(regNo) {
     openDeliverableModal(regNo);
   }
 }
-function goToDeliverables(regNo) {
-  // 1. Cari elemen menu sidebar "Project Deliverables" lalu klik secara otomatis
-  const sidebarButtons = Array.from(document.querySelectorAll('div, a, button, li'));
-  const deliverablesMenu = sidebarButtons.find(el => 
-    el.textContent.trim() === 'Project Deliverables' || 
-    el.textContent.trim().includes('Project Deliverables')
-  );
+// ==========================================
+// PERBAIKAN TOMBOL UPLOAD & REVIEW / EDIT
+// ==========================================
 
-  if (deliverablesMenu) {
-    deliverablesMenu.click(); // Pindah ke tampilan Project Deliverables
+// 1. Fungsi untuk tombol "Upload Laporan →"
+window.goToDeliverables = function(regNo) {
+  // Pindah halaman ke Project Deliverables menggunakan sistem bawaan aplikasi
+  if (typeof showPage === 'function') {
+    showPage('deliverables');
   }
 
-  // 2. Buka form/detail deliverable untuk proyek tersebut
+  // Otomatis pilih proyek yang sesuai di dropdown halaman Deliverables
   setTimeout(() => {
-    if (typeof showDeliverableForProject === 'function') {
-      showDeliverableForProject(regNo);
-    }
-  }, 200);
-}
-// Fungsi global untuk menangani tombol Upload Laporan & Review/Edit
-window.goToDeliverables = function(regNo) {
-  console.log("Tombol diklik untuk nomor registrasi:", regNo);
-
-  // 1. Cari menu sidebar "Project Deliverables" menggunakan .includes() agar tidak gagal karena ikon/spasi
-  const allElements = document.querySelectorAll('a, button, div, li, span');
-  let targetMenu = null;
-
-  for (let el of allElements) {
-    if (el.textContent && el.textContent.includes('Project Deliverables')) {
-      // Pastikan elemen ini kecil/spesifik (bukan membungkus seluruh halaman)
-      if (el.children.length <= 2) { 
-        targetMenu = el;
-        break;
+    const selectEl = document.getElementById("delivProjectSelect");
+    if (selectEl) {
+      selectEl.value = regNo;
+      // Jalankan fungsi update form deliverable
+      if (typeof onDeliverableProjectChange === 'function') {
+        onDeliverableProjectChange();
       }
     }
-  }
-
-  if (targetMenu) {
-    console.log("Menu sidebar ditemukan, berpindah halaman...");
-    targetMenu.click();
-  } else {
-    console.warn("Menu sidebar tidak ditemukan secara otomatis.");
-  }
-
-  // 2. Buka form/modal upload atau deliverable untuk regNo tersebut
-  setTimeout(() => {
-    if (typeof window.showDeliverableForProject === 'function') {
-      window.showDeliverableForProject(regNo);
-    } else {
-      // Fallback jika fungsi modal belum ada
-      alert("Mengarahkan ke deliverable untuk proyek: " + regNo);
-    }
-  }, 300);
+  }, 200);
 };
 
-// Pastikan fungsi showDeliverableForProject juga terdaftar global
+// 2. Fungsi untuk tombol "Review / Edit"
 window.showDeliverableForProject = function(regNo) {
-  if (typeof openDeliverableModal === 'function') {
-    openDeliverableModal(regNo);
-  } else {
-    console.log("Membuka detail deliverable untuk:", regNo);
+  // Pindah halaman ke Project Deliverables
+  if (typeof showPage === 'function') {
+    showPage('deliverables');
   }
+
+  // Otomatis pilih proyek yang sesuai dan muat datanya
+  setTimeout(() => {
+    const selectEl = document.getElementById("delivProjectSelect");
+    if (selectEl) {
+      selectEl.value = regNo;
+      // Jalankan fungsi update form deliverable
+     if (typeof onDeliverableProjectChange === 'function') {
+        onDeliverableProjectChange();
+      }
+    }
+  }, 200);
 };
