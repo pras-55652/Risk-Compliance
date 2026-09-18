@@ -2225,3 +2225,27 @@ window.showDeliverableForProject = function(regNo) {
     }
   }, 200);
 };
+
+// ==========================================
+// PENCEGAT TOMBOL UNDUH (MEMBUKA FILE PDF ASLI)
+// ==========================================
+document.addEventListener('click', function(e) {
+  // Cari tombol atau elemen yang teksnya mengandung "Unduh" atau "PDF"
+  const target = e.target.closest('button, a');
+  if (target && (target.textContent.includes('Unduh') || target.textContent.includes('PDF'))) {
+    
+    // Ambil nomor registrasi proyek yang sedang aktif di dropdown halaman
+    const selectEl = document.getElementById("delivProjectSelect");
+    const regNo = selectEl ? selectEl.value : null;
+    
+    if (regNo && window.uploadedDeliverableFiles && window.uploadedDeliverableFiles[regNo]) {
+      // Hentikan fungsi simulasi bawaan template asli
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      
+      // Buka file PDF asli di tab baru browser
+      const fileData = window.uploadedDeliverableFiles[regNo];
+      window.open(fileData.url, '_blank');
+    }
+  }
+}, true); // True (capturing phase) agar mendahului fungsi lama
