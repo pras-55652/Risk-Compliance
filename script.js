@@ -2125,3 +2125,35 @@ function goToDeliverables(regNo) {
     }
   }, 200);
 }
+// 1. Fungsi untuk tombol "Upload Laporan →" (Pindah tab + Buka Upload)
+window.goToDeliverables = function(regNo) {
+  // Pindah tampilan ke menu sidebar "Project Deliverables"
+  const allElements = document.querySelectorAll('div, a, button, li, span');
+  const deliverablesMenu = Array.from(allElements).find(el => 
+    el.textContent.trim() === 'Project Deliverables'
+  );
+
+  if (deliverablesMenu) {
+    deliverablesMenu.click(); // Otomatis klik menu di sidebar
+  }
+
+  // Buka form upload untuk proyek tersebut
+  setTimeout(() => {
+    if (typeof window.showDeliverableForProject === 'function') {
+      window.showDeliverableForProject(regNo);
+    }
+  }, 300);
+};
+
+// 2. Fungsi untuk tombol "Review / Edit" (Buka file/form yang sudah diupload)
+window.showDeliverableForProject = function(regNo) {
+  // Pastikan nama fungsi modal/detail deliverable kamu dipanggil di sini
+  if (typeof openDeliverableModal === 'function') {
+    openDeliverableModal(regNo);
+  } else if (typeof viewProjectDetail === 'function') {
+    // Jika belum ada halaman khusus edit, buka detail berkas dulu
+    viewProjectDetail(regNo); 
+  } else {
+    alert("Membuka data deliverable untuk proyek: " + regNo);
+  }
+};
