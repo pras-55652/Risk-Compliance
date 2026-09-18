@@ -23,8 +23,16 @@ const REGISTRY_ROLES = [
   "MGR_RISK",
 ];
 
+// TAMBAHKAN INI: Role yang boleh mengakses Project Deliverables (KECUALI Manager & Finance)
+const DELIVERABLES_ROLES = [
+  "PIC",
+  "FASILITATOR",
+  "CI_TEAM",
+  "MGR_RISK",
+];
+
 const menu = [
-  ["dashboard", "▣", "Summary Improvement", ["CI_TEAM", "MGR_RISK"]], // <-- UBAH DARI ALL_ROLES MENJADI INI
+  ["dashboard", "▣", "Summary Improvement", ["CI_TEAM", "MGR_RISK"]],
   [
     "registration",
     "＋",
@@ -33,7 +41,10 @@ const menu = [
   ],
   ["myprojects", "▤", "My Workspace", ALL_ROLES],
   ["allprojects", "▦", "All Projects Registry", REGISTRY_ROLES],
-  ["deliverables", "◫", "Project Deliverables", ALL_ROLES],
+  
+  // UBAH DARI ALL_ROLES MENJADI DELIVERABLES_ROLES DI SINI:
+  ["deliverables", "◫", "Project Deliverables", DELIVERABLES_ROLES], 
+  
   ["verification", "✓", "CI Verification & Review", ["CI_TEAM"]],
 ];
 
