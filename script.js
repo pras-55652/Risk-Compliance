@@ -2286,3 +2286,47 @@ window.alert = function(msg) {
   // Untuk pesan alert lain yang normal, biarkan berjalan seperti biasa
   originalAlert(msg);
 };
+
+// 1. Array atau Penyimpanan Data Proyek Utama (Contoh struktur data)
+window.projectRegistry = window.projectRegistry || [];
+
+// 2. Fungsi saat PIC mendaftarkan proyek baru (+Project Registration)
+// Status awal otomatis "Pending"
+window.registerNewProject = function(projectData) {
+  const newProj = {
+    regNo: projectData.regNo || "REG-" + Date.now(),
+    title: projectData.title,
+    pic: projectData.pic,
+    status: "Pending", // Status awal sebelum di-acc
+    ...projectData
+  };
+  
+  window.projectRegistry.push(newProj);
+  alert("Proyek berhasil didaftarkan dan dikirim ke My Workspace (Status: Pending).");
+};
+
+// 3. Fungsi saat Akun Non-PIC melakukan ACC di My Workspace
+window.approveProjectByRole = function(regNo, approverRole) {
+  const project = window.projectRegistry.find(p => p.regNo === regNo);
+  if (project) {
+    project.status = "Approved"; // Berubah menjadi Approved
+    project.approvedBy = approverRole;
+    alert("Proyek " + regNo + " telah di-ACC oleh " + approverRole + "! Sekarang masuk ke All Projects Registry.");
+    
+    // Refresh tampilan tabel jika ada fungsi render
+    if (typeof renderTables === 'function') renderTables();
+  }
+};
+
+// 4. Logika Filter untuk Halaman "All Projects Registry"
+// Hanya menampilkan proyek yang statusnya sudah "Approved" untuk akun non-PIC
+window.getFilteredRegistryProjects = function(userRole) {
+  if (userRole === "PIC" || userRole === "Team Leader") {
+    // Jika PIC melihat registry miliknya sendiri (opsional)
+    return window.projectRegistry.filter(p => p.pic === window.currentUserName);
+  } else {
+    // Untuk akun Non-PIC (Manager, Finance, Fasilitator, dll):
+    // HANYA tampilkan proyek yang statusnya sudah "Approved"
+    return window.projectRegistry.filter(p => p.status === "Approved");
+  }
+};
