@@ -2125,35 +2125,47 @@ function goToDeliverables(regNo) {
     }
   }, 200);
 }
-// 1. Fungsi untuk tombol "Upload Laporan →" (Pindah tab + Buka Upload)
+// Fungsi global untuk menangani tombol Upload Laporan & Review/Edit
 window.goToDeliverables = function(regNo) {
-  // Pindah tampilan ke menu sidebar "Project Deliverables"
-  const allElements = document.querySelectorAll('div, a, button, li, span');
-  const deliverablesMenu = Array.from(allElements).find(el => 
-    el.textContent.trim() === 'Project Deliverables'
-  );
+  console.log("Tombol diklik untuk nomor registrasi:", regNo);
 
-  if (deliverablesMenu) {
-    deliverablesMenu.click(); // Otomatis klik menu di sidebar
+  // 1. Cari menu sidebar "Project Deliverables" menggunakan .includes() agar tidak gagal karena ikon/spasi
+  const allElements = document.querySelectorAll('a, button, div, li, span');
+  let targetMenu = null;
+
+  for (let el of allElements) {
+    if (el.textContent && el.textContent.includes('Project Deliverables')) {
+      // Pastikan elemen ini kecil/spesifik (bukan membungkus seluruh halaman)
+      if (el.children.length <= 2) { 
+        targetMenu = el;
+        break;
+      }
+    }
   }
 
-  // Buka form upload untuk proyek tersebut
+  if (targetMenu) {
+    console.log("Menu sidebar ditemukan, berpindah halaman...");
+    targetMenu.click();
+  } else {
+    console.warn("Menu sidebar tidak ditemukan secara otomatis.");
+  }
+
+  // 2. Buka form/modal upload atau deliverable untuk regNo tersebut
   setTimeout(() => {
     if (typeof window.showDeliverableForProject === 'function') {
       window.showDeliverableForProject(regNo);
+    } else {
+      // Fallback jika fungsi modal belum ada
+      alert("Mengarahkan ke deliverable untuk proyek: " + regNo);
     }
   }, 300);
 };
 
-// 2. Fungsi untuk tombol "Review / Edit" (Buka file/form yang sudah diupload)
+// Pastikan fungsi showDeliverableForProject juga terdaftar global
 window.showDeliverableForProject = function(regNo) {
-  // Pastikan nama fungsi modal/detail deliverable kamu dipanggil di sini
   if (typeof openDeliverableModal === 'function') {
     openDeliverableModal(regNo);
-  } else if (typeof viewProjectDetail === 'function') {
-    // Jika belum ada halaman khusus edit, buka detail berkas dulu
-    viewProjectDetail(regNo); 
   } else {
-    alert("Membuka data deliverable untuk proyek: " + regNo);
+    console.log("Membuka detail deliverable untuk:", regNo);
   }
 };
