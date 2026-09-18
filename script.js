@@ -2227,12 +2227,12 @@ window.showDeliverableForProject = function(regNo) {
 };
 
 // ==========================================
-// SOLUSI TOTAL: MEMATIKAN SIMULASI & MEMBUKA PDF ASLI
+// SOLUSI PALING AMPUH: MEMBAJAK ALERT SIMULASI
 // ==========================================
 
 window.uploadedDeliverableFiles = window.uploadedDeliverableFiles || {};
 
-// 1. Fungsi Simpan File
+// 1. Fungsi saat tombol "Upload & Simpan Berkas" dipencet
 window.saveDeliverableFile = function(regNo) {
   const fileInput = document.querySelector('input[type="file"]');  
   if (fileInput && fileInput.files && fileInput.files[0]) {
@@ -2244,52 +2244,34 @@ window.saveDeliverableFile = function(regNo) {
       url: fileURL
     };
     
-    alert("Berhasil! File " + file.name + " tersimpan di memori browser.");
+    alert("Berhasil! File " + file.name + " berhasil disimpan di memori browser.");
   } else {
     alert("Silakan pilih file PDF terlebih dahulu.");
   }
 };
 
-// 2. Pembersih Tombol & Pencegat Paksa (Membunuh fungsi simulasi lama)
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(overrideButtons, 500);
-});
-
-// Jalankan juga langsung untuk mengantisipasi elemen dinamis
-setTimeout(overrideButtons, 1000);
-
-function overrideButtons() {
-  const elements = document.querySelectorAll('button, a');
-  elements.forEach(el => {
-    if (el.textContent.includes('Unduh') || el.textContent.includes('PDF') || el.textContent.includes('Buka')) {
-      // Hapus atribut onclick bawaan template yang memicu alert simulasi
-      el.removeAttribute('onclick');
-      
-      // Kloning elemen untuk membersihkan semua event listener lama dari template
-      const newEl = el.cloneNode(true);
-      if (el.parentNode) {
-        el.parentNode.replaceChild(newEl, el);
-      }
-    }
-  });
-}
-
-// 3. Event Listener Utama untuk Membuka File PDF Asli
-document.addEventListener('click', function(e) {
-  const target = e.target.closest('button, a');
-  if (target && (target.textContent.includes('Unduh') || target.textContent.includes('PDF') || target.textContent.includes('Buka'))) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    e.stopPropagation();
+// 2. Trik Interceptor: Menangkap alert simulasi template dan menggantinya dengan PDF asli
+const originalAlert = window.alert;
+window.alert = function(msg) {
+  // Jika teks alert mengandung kata "Simulasi PDF Viewer" milik template
+  if (typeof msg === 'string' && msg.includes('Simulasi PDF Viewer')) {
     
+    // Ambil nomor registrasi proyek yang sedang aktif di halaman
     const selectEl = document.getElementById("delivProjectSelect");
     const regNo = selectEl ? selectEl.value : null;
     
     if (regNo && window.uploadedDeliverableFiles && window.uploadedDeliverableFiles[regNo]) {
+      // Batalkan alert simulasi, lalu buka file PDF asli di tab baru!
       const fileData = window.uploadedDeliverableFiles[regNo];
       window.open(fileData.url, '_blank');
+      return; // Menghentikan agar pop-up simulasi tidak pernah muncul
     } else {
-      alert("Belum ada file PDF asli yang di-upload pada sesi ini. Silakan pilih file dan klik 'Upload & Simpan Berkas' terlebih dahulu.");
+      // Jika user belum sempat upload file di sesi ini
+      originalAlert("Belum ada file PDF asli yang di-upload untuk proyek ini pada sesi ini. Silakan pilih file dan klik 'Upload & Simpan Berkas' terlebih dahulu.");
+      return;
     }
   }
-}, true);
+  
+  // Untuk pesan alert lain yang normal, biarkan berjalan seperti biasa
+  originalAlert(msg);
+};
