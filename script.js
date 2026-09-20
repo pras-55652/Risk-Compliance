@@ -136,9 +136,8 @@ const initialProjectsData = [
   },
 ];
 
-let projectList =
-  JSON.parse(localStorage.getItem("binnovate_master_projects")) ||
-  initialProjectsData;
+const savedProjects = JSON.parse(localStorage.getItem("binnovate_master_projects"));
+let projectList = (savedProjects && savedProjects.length > 0) ? savedProjects : initialProjectsData;
 
 function persistProjects() {
   localStorage.setItem(
