@@ -2279,96 +2279,101 @@ window.alert = function(msg) {
   originalAlert(msg);
 };
 
-// 1. Array atau Penyimpanan Data Proyek Utama (Contoh struktur data)
+// ==========================================
+// 1. LOGIKA DATA & APPROVAL 
+// ==========================================
+
 window.projectRegistry = window.projectRegistry || [];
 
-// 2. Fungsi saat PIC mendaftarkan proyek baru (+Project Registration)
-// Status awal otomatis "Pending"
 window.registerNewProject = function(projectData) {
   const newProj = {
     regNo: projectData.regNo || "REG-" + Date.now(),
     title: projectData.title,
     pic: projectData.pic,
-    status: "Pending", // Status awal sebelum di-acc
+    status: "Pending",
     ...projectData
   };
-  
   window.projectRegistry.push(newProj);
   alert("Proyek berhasil didaftarkan dan dikirim ke My Workspace (Status: Pending).");
 };
 
-// 3. Fungsi saat Akun Non-PIC melakukan ACC di My Workspace
 window.approveProjectByRole = function(regNo, approverRole) {
   const project = window.projectRegistry.find(p => p.regNo === regNo);
   if (project) {
-    project.status = "Approved"; // Berubah menjadi Approved
+    project.status = "Approved";
     project.approvedBy = approverRole;
     alert("Proyek " + regNo + " telah di-ACC oleh " + approverRole + "! Sekarang masuk ke All Projects Registry.");
-    
-    // Refresh tampilan tabel jika ada fungsi render
     if (typeof renderTables === 'function') renderTables();
+    if (typeof window.updateRegistryTableUI === 'function') window.updateRegistryTableUI();
   }
 };
 
-// 4. Logika Filter untuk Halaman "All Projects Registry"
-// Hanya menampilkan proyek yang statusnya sudah "Approved" untuk akun non-PIC
 window.getFilteredRegistryProjects = function(userRole) {
   if (userRole === "PIC" || userRole === "Team Leader") {
-    // Jika PIC melihat registry miliknya sendiri (opsional)
     return window.projectRegistry.filter(p => p.pic === window.currentUserName);
   } else {
-    // Untuk akun Non-PIC (Manager, Finance, Fasilitator, dll):
-    // HANYA tampilkan proyek yang statusnya sudah "Approved"
     return window.projectRegistry.filter(p => p.status === "Approved");
   }
 };
 
-// 1. Fungsi untuk memperbarui tampilan tabel All Projects Registry secara otomatis
+
+// ==========================================
+// 2. OTOMATISASI TAMPILAN TABEL (MUTATION OBSERVER)
+// ==========================================
+
 window.updateRegistryTableUI = function() {
-  // Cari elemen tabel atau kontainer tabel di halaman All Projects Registry
-  // (Biasanya menggunakan tag <tbody> atau id tertentu dari template)
-  const tableBody = document.querySelector('#allprojects table tbody') || document.querySelector('.allprojects-table tbody') || document.querySelector('table tbody');
+  const tables = document.querySelectorAll('table');
+  if (!tables.length) return;
+
+  const approvedData = window.getFilteredRegistryProjects 
+    ? window.getFilteredRegistryProjects(window.currentUserRole || "CI_TEAM") 
+    : [];
+
+  const registrySection = document.getElementById('allprojects') || document.querySelector('.allprojects-section');
   
-  if (!tableBody) return; // Jika tabel belum ada di layar, abaikan
+  if (registrySection) {
+    const tbody = registrySection.querySelector('tbody') || registrySection.querySelector('table');
+    if (tbody) {
+      if (approvedData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">Belum ada proyek yang disetujui (Approved) dari My Workspace.</td></tr>`;
+        return;
+      }
 
-  // Ambil data yang sudah difilter (hanya yang statusnya Approved untuk non-PIC)
-  const approvedData = window.getFilteredRegistryProjects ? window.getFilteredRegistryProjects(window.currentUserRole) : [];
-
-  // Jika data kosong, tampilkan baris kosong / info
-  if (approvedData.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #888;">Belum ada proyek yang disetujui (Approved) dari My Workspace.</td></tr>`;
-    return;
+      let rowsHTML = "";
+      approvedData.forEach((p, index) => {
+        rowsHTML += `
+          <tr>
+            <td>${p.regNo || 'REG-0' + (index + 1)}</td>
+            <td>${p.title || p.projectName || 'Tanpa Judul'}</td>
+            <td>${p.pic || p.author || '-'}</td>
+            <td>${p.department || '-'}</td>
+            <td><span style="background: #d4edda; color: #155724; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">${p.status}</span></td>
+            <td>${p.approvedBy || 'Verified'}</td>
+          </tr>
+        `;
+      });
+      
+      if (tbody.tagName === 'TBODY') {
+        tbody.innerHTML = rowsHTML;
+      } else {
+        const innerTable = tbody.querySelector('tbody');
+        if (innerTable) innerTable.innerHTML = rowsHTML;
+      }
+    }
   }
-
-  // Masukkan data proyek yang sudah di-ACC ke dalam baris tabel
-  let rowsHTML = "";
-  approvedData.forEach((p, index) => {
-    rowsHTML += `
-      <tr>
-        <td>${p.regNo || 'REG-' + (index + 1)}</td>
-        <td>${p.title || p.projectName || 'Tanpa Judul'}</td>
-        <td>${p.pic || p.author || '-'}</td>
-        <td><span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">${p.status}</span></td>
-        <td>${p.approvedBy || 'System'}</td>
-      </tr>
-    `;
-  });
-
-  tableBody.innerHTML = rowsHTML;
 };
 
-// 2. Deteksi otomatis saat user berpindah menu ke "All Projects Registry"
-document.addEventListener('click', function(e) {
-  const target = e.target.closest('a, button, [data-target], [onclick]');
-  if (target) {
-    // Jika tombol menu All Projects diklik, jalankan pembaruan tabel
-    setTimeout(() => {
-      window.updateRegistryTableUI();
-    }, 200);
-  }
+const registryObserver = new MutationObserver(() => {
+  window.updateRegistryTableUI();
 });
 
-// Jalankan juga saat halaman pertama kali dimuat
+registryObserver.observe(document.body, {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ['style', 'class', 'hidden']
+});
+
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(window.updateRegistryTableUI, 500);
+  setTimeout(window.updateRegistryTableUI, 1000);
 });
