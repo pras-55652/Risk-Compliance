@@ -1195,6 +1195,7 @@ function renderTables() {
 }
 
 function renderAllTable(data) {
+  // Tambahkan implementasi fungsi renderAllTable sesuai kebutuhan UI tabel registrasi/registry Anda
 }
 
 function filterAllProjects() {
