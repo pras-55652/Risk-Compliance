@@ -1195,31 +1195,7 @@ function renderTables() {
 }
 
 function renderAllTable(data) {
-  const tbody = document.getElementById("allTableList") || document.querySelector("#allprojects tbody");
-  if (!tbody) return;
-
-  if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: #94a3b8; padding: 24px;">Tidak ada data proyek ditemukan.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = data.map((p) => {
-    return `
-      <tr>
-        <td><b>${p.regNo}</b></td>
-        <td>${p.title}</td>
-        <td>${p.dept}</td>
-        <td>${p.owner}</td>
-        <td>${p.method}</td>
-        <td><span class="status ${statusClass(p.status)}">${p.status}</span></td>
-        <td><b>${p.progress}%</b></td>
-        <td>${p.deadline || '-'}</td>
-        <td>
-          <button onclick="viewProjectDetail('${p.regNo}')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">Detail</button>
-        </td>
-      </tr>
-    `;
-  }).join("");
+  
 }
 
 function filterAllProjects() {
