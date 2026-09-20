@@ -2280,89 +2280,104 @@ window.alert = function(msg) {
 };
 
 // ==========================================
-// 1. LOGIKA DATA & APPROVAL 
+// SISTEM PENYIMPANAN & SYNC MENGGUNAKAN LOCALSTORAGE
 // ==========================================
 
-window.projectRegistry = window.projectRegistry || [];
+// Inisialisasi data dari localStorage agar tidak hilang
+window.getStoredProjects = function() {
+  const data = localStorage.getItem('my_project_registry');
+  return data ? JSON.parse(data) : [];
+};
 
+window.saveStoredProjects = function(projectsArray) {
+  localStorage.setItem('my_project_registry', JSON.stringify(projectsArray));
+};
+
+// 1. Fungsi saat PIC mendaftarkan proyek baru
 window.registerNewProject = function(projectData) {
+  let projects = window.getStoredProjects();
   const newProj = {
     regNo: projectData.regNo || "REG-" + Date.now(),
-    title: projectData.title,
-    pic: projectData.pic,
-    status: "Pending",
+    title: projectData.title || projectData.projectName || "Tanpa Judul",
+    pic: projectData.pic || projectData.author || "PIC",
+    department: projectData.department || "-",
+    status: "Pending", // Status awal
     ...projectData
   };
-  window.projectRegistry.push(newProj);
+  
+  projects.push(newProj);
+  window.saveStoredProjects(projects);
   alert("Proyek berhasil didaftarkan dan dikirim ke My Workspace (Status: Pending).");
 };
 
+// 2. Fungsi saat Akun Non-PIC melakukan ACC di My Workspace
 window.approveProjectByRole = function(regNo, approverRole) {
-  const project = window.projectRegistry.find(p => p.regNo === regNo);
+  let projects = window.getStoredProjects();
+  const project = projects.find(p => p.regNo === regNo);
+  
   if (project) {
     project.status = "Approved";
-    project.approvedBy = approverRole;
-    alert("Proyek " + regNo + " telah di-ACC oleh " + approverRole + "! Sekarang masuk ke All Projects Registry.");
-    if (typeof renderTables === 'function') renderTables();
-    if (typeof window.updateRegistryTableUI === 'function') window.updateRegistryTableUI();
-  }
-};
-
-window.getFilteredRegistryProjects = function(userRole) {
-  if (userRole === "PIC" || userRole === "Team Leader") {
-    return window.projectRegistry.filter(p => p.pic === window.currentUserName);
+    project.approvedBy = approverRole || "Verifier";
+    window.saveStoredProjects(projects);
+    
+    alert("Proyek " + regNo + " telah di-ACC! Sekarang resmi masuk ke All Projects Registry.");
+    window.updateRegistryTableUI();
   } else {
-    return window.projectRegistry.filter(p => p.status === "Approved");
+    alert("Data proyek dengan No. Reg " + regNo + " tidak ditemukan di database lokal.");
   }
 };
 
+// 3. Logika Filter untuk Halaman "All Projects Registry"
+window.getFilteredRegistryProjects = function(userRole) {
+  let projects = window.getStoredProjects();
+  if (userRole === "PIC" || userRole === "Team Leader") {
+    return projects.filter(p => p.pic === window.currentUserName);
+  } else {
+    // HANYA tampilkan yang sudah "Approved" untuk akun Non-PIC
+    return projects.filter(p => p.status === "Approved");
+  }
+};
 
-// ==========================================
-// 2. OTOMATISASI TAMPILAN TABEL (MUTATION OBSERVER)
-// ==========================================
-
+// 4. Otomatisasi Tampilan Tabel All Projects Registry
 window.updateRegistryTableUI = function() {
-  const tables = document.querySelectorAll('table');
-  if (!tables.length) return;
-
-  const approvedData = window.getFilteredRegistryProjects 
-    ? window.getFilteredRegistryProjects(window.currentUserRole || "CI_TEAM") 
-    : [];
-
   const registrySection = document.getElementById('allprojects') || document.querySelector('.allprojects-section');
-  
-  if (registrySection) {
-    const tbody = registrySection.querySelector('tbody') || registrySection.querySelector('table');
-    if (tbody) {
-      if (approvedData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">Belum ada proyek yang disetujui (Approved) dari My Workspace.</td></tr>`;
-        return;
-      }
+  if (!registrySection) return;
 
-      let rowsHTML = "";
-      approvedData.forEach((p, index) => {
-        rowsHTML += `
-          <tr>
-            <td>${p.regNo || 'REG-0' + (index + 1)}</td>
-            <td>${p.title || p.projectName || 'Tanpa Judul'}</td>
-            <td>${p.pic || p.author || '-'}</td>
-            <td>${p.department || '-'}</td>
-            <td><span style="background: #d4edda; color: #155724; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">${p.status}</span></td>
-            <td>${p.approvedBy || 'Verified'}</td>
-          </tr>
-        `;
-      });
-      
-      if (tbody.tagName === 'TBODY') {
-        tbody.innerHTML = rowsHTML;
-      } else {
-        const innerTable = tbody.querySelector('tbody');
-        if (innerTable) innerTable.innerHTML = rowsHTML;
-      }
+  const tbody = registrySection.querySelector('tbody') || registrySection.querySelector('table');
+  if (!tbody) return;
+
+  const approvedData = window.getFilteredRegistryProjects(window.currentUserRole || "CI_TEAM");
+
+  if (approvedData.length === 0) {
+    if (tbody.tagName === 'TBODY') {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #888;">Belum ada proyek yang disetujui (Approved) dari My Workspace.</td></tr>`;
     }
+    return;
+  }
+
+  let rowsHTML = "";
+  approvedData.forEach((p, index) => {
+    rowsHTML += `
+      <tr>
+        <td>${p.regNo || 'REG-0' + (index + 1)}</td>
+        <td>${p.title || '-'}</td>
+        <td>${p.department || '-'}</td>
+        <td>${p.pic || '-'}</td>
+        <td>${p.metode || '-'}</td>
+        <td><span style="background: #d4edda; color: #155724; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">${p.status}</span></td>
+      </tr>
+    `;
+  });
+
+  if (tbody.tagName === 'TBODY') {
+    tbody.innerHTML = rowsHTML;
+  } else {
+    const innerTable = tbody.querySelector('tbody');
+    if (innerTable) innerTable.innerHTML = rowsHTML;
   }
 };
 
+// 5. Observer otomatis untuk memantau perubahan halaman
 const registryObserver = new MutationObserver(() => {
   window.updateRegistryTableUI();
 });
@@ -2375,5 +2390,5 @@ registryObserver.observe(document.body, {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(window.updateRegistryTableUI, 1000);
+  setTimeout(window.updateRegistryTableUI, 800);
 });
