@@ -1195,7 +1195,6 @@ function renderTables() {
 }
 
 function renderAllTable(data) {
-  
 }
 
 function filterAllProjects() {
