@@ -1365,9 +1365,7 @@ function closeWorkflowModal() {
   const modal = document.getElementById("workflowModal");
   if (modal) modal.style.display = "none";
 }
-// ==========================================
-// TAMBAHAN: MODAL DETAIL REGISTRASI PROYEK (MENU BERKAS)
-// ==========================================
+
 function viewProjectDetail(regNo) {
   const p = projectList.find(item => item.regNo === regNo);
   if (!p) {
@@ -2117,9 +2115,6 @@ function goToDeliverables(regNo) {
     openDeliverableModal(regNo);
   }
 }
-// ==========================================
-// PERBAIKAN TOMBOL UPLOAD & REVIEW / EDIT
-// ==========================================
 
 // 1. Fungsi untuk tombol "Upload Laporan →"
 window.goToDeliverables = function(regNo) {
@@ -2237,9 +2232,6 @@ window.showDeliverableForProject = function(regNo) {
   }, 200);
 };
 
-// ==========================================
-// SOLUSI PALING AMPUH: MEMBAJAK ALERT SIMULASI
-// ==========================================
 
 window.uploadedDeliverableFiles = window.uploadedDeliverableFiles || {};
 
@@ -2330,3 +2322,53 @@ window.getFilteredRegistryProjects = function(userRole) {
     return window.projectRegistry.filter(p => p.status === "Approved");
   }
 };
+
+// 1. Fungsi untuk memperbarui tampilan tabel All Projects Registry secara otomatis
+window.updateRegistryTableUI = function() {
+  // Cari elemen tabel atau kontainer tabel di halaman All Projects Registry
+  // (Biasanya menggunakan tag <tbody> atau id tertentu dari template)
+  const tableBody = document.querySelector('#allprojects table tbody') || document.querySelector('.allprojects-table tbody') || document.querySelector('table tbody');
+  
+  if (!tableBody) return; // Jika tabel belum ada di layar, abaikan
+
+  // Ambil data yang sudah difilter (hanya yang statusnya Approved untuk non-PIC)
+  const approvedData = window.getFilteredRegistryProjects ? window.getFilteredRegistryProjects(window.currentUserRole) : [];
+
+  // Jika data kosong, tampilkan baris kosong / info
+  if (approvedData.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #888;">Belum ada proyek yang disetujui (Approved) dari My Workspace.</td></tr>`;
+    return;
+  }
+
+  // Masukkan data proyek yang sudah di-ACC ke dalam baris tabel
+  let rowsHTML = "";
+  approvedData.forEach((p, index) => {
+    rowsHTML += `
+      <tr>
+        <td>${p.regNo || 'REG-' + (index + 1)}</td>
+        <td>${p.title || p.projectName || 'Tanpa Judul'}</td>
+        <td>${p.pic || p.author || '-'}</td>
+        <td><span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">${p.status}</span></td>
+        <td>${p.approvedBy || 'System'}</td>
+      </tr>
+    `;
+  });
+
+  tableBody.innerHTML = rowsHTML;
+};
+
+// 2. Deteksi otomatis saat user berpindah menu ke "All Projects Registry"
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('a, button, [data-target], [onclick]');
+  if (target) {
+    // Jika tombol menu All Projects diklik, jalankan pembaruan tabel
+    setTimeout(() => {
+      window.updateRegistryTableUI();
+    }, 200);
+  }
+});
+
+// Jalankan juga saat halaman pertama kali dimuat
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(window.updateRegistryTableUI, 500);
+});
