@@ -909,25 +909,19 @@ function rejectCurrentStep(regNo) {
 
   const reason = prompt(
     `Masukkan alasan penolakan/catatan revisi untuk proyek ${regNo}:`,
-    "Mohon lengkapi latar belakang masalah dan perbaiki estimasi biaya.",
+    "Mohon lengkapi latar belakang masalah dan perbaiki estimasi biaya."
   );
 
-  if (reason === null) return;
-
-  const cleanReason = reason.trim() || "Tidak ada catatan spesifik.";
+  if (reason === null) return; // Batal jika klik cancel
 
   project.status = "Revision Needed";
-  project.currentStep = 1;
-  project.progress = 5;
-  project.rejectionNote = cleanReason;
+  project.currentStep = 1; // Dikembalikan langsung ke akun PIC (Step 1)
+  project.progress = 10;
+  project.rejectionNote = reason.trim() || "Mohon perbaiki data usulan proyek.";
 
   persistProjects();
-  alert(
-    `❌ Proyek ${regNo} DITOLAK / DIKEMBALIKAN KE PIC!\nCatatan revisi: "${cleanReason}"\n\nTema telah dipindahkan kembali ke PIC untuk diperbaiki.`,
-  );
-
+  alert(`❌ Proyek ${regNo} berhasil dikembalikan ke PIC untuk diperbaiki.`);
   renderTables();
-  renderParticipation();
   updateNotificationCount();
 }
 
