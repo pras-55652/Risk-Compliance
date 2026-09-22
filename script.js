@@ -1210,6 +1210,62 @@ function renderTables() {
   renderAllTable(approvedForRegistry);
 }
 
+// 1. FUNGSI RENDER TABEL (Taruh di sini)
+function renderAllTable(data) {
+  const allTableEl = document.getElementById("allTable");
+  if (!allTableEl) return;
+
+  if (!data || data.length === 0) {
+    allTableEl.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align: center; color: #94a3b8; padding: 28px;">
+          📁 <b>Belum ada proyek terdaftar yang disetujui (Approved / In Progress).</b>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  allTableEl.innerHTML = data
+    .map((p) => {
+      const currentApprover = approvalSteps[(p.currentStep || 1) - 1];
+      const isCompleted = p.status === "Completed" || p.status === "Closed";
+      
+      const statusBadge = isCompleted
+        ? `<span class="status green">✅ Closed</span>`
+        : `<span class="status yellow">⏳ Pending: ${currentApprover}</span>`;
+
+      const hasFile = p.deliverableFile && p.deliverableFile !== "" && p.deliverableFile !== "-";
+      const berkasHtml = hasFile
+        ? `<button type="button" onclick="window.openDeliverablePdf('${p.regNo}')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;">📄 Lihat PDF</button>`
+        : `<span style="color: #94a3b8; font-size: 11.5px;">Belum Ada</span>`;
+
+      return `
+        <tr>
+          <td><b>${p.regNo}</b></td>
+          <td>${p.title}</td>
+          <td>${p.dept}</td>
+          <td>${p.owner}</td>
+          <td><span style="font-size: 12px; color: #475569;">${p.method}</span></td>
+          <td>
+            <span 
+              class="clickable-status" 
+              title="Klik untuk melacak alur approval 6 tahap" 
+              onclick="showWorkflowModal('${p.regNo}')"
+              style="cursor: pointer;"
+            >
+              ${statusBadge}
+            </span>
+          </td>
+          <td><b>${p.progress}%</b></td>
+          <td>${berkasHtml}</td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+// 2. FUNGSI FILTER (Berada di bawahnya secara terpisah)
 function filterAllProjects() {
   const searchInput = document.getElementById("searchAll");
   const deptSelect = document.getElementById("filterDeptRegistry");
