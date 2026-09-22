@@ -919,7 +919,7 @@ window.rejectCurrentStep = function(regNo) {
   if (reason === null) return; // Batal jika klik Cancel
 
   project.status = "Revision Needed";
-  project.currentStep = 1; // Dikembalikan ke PIC (Step 1)
+  project.currentStep = 1; // Dikembalikan langsung ke akun PIC (Step 1)
   project.progress = 10;
   project.rejectionNote = reason.trim() || "Mohon perbaiki data usulan proyek.";
 
@@ -947,11 +947,11 @@ window.resubmitProject = function(regNo) {
   persistProjects();
   alert(`✅ Proyek ${regNo} berhasil diperbaiki dan dikirim kembali ke Fasilitator!`);
 
-  // Refresh tampilan
   if (typeof renderTables === 'function') renderTables();
   if (typeof updateNotificationCount === 'function') updateNotificationCount();
 };
 
+function renderTables() {
   let filteredWorkspaceProjects = [];
   const workspaceBadge = document.getElementById("workspaceBadge");
   const workspaceSubtitle = document.getElementById("workspaceSubtitle");
@@ -1058,7 +1058,6 @@ window.resubmitProject = function(regNo) {
         .map((p) => {
           const currentApprover = approvalSteps[(p.currentStep || 1) - 1];
 
-          // 1. LOGIKA BADGE STATUS (REVISI ATAU PENDING/CLOSED)
           let approvalBadgeText = "";
           if (p.status === "Revision Needed") {
             approvalBadgeText = `⚠️ Revisi: ${p.rejectionNote || 'Cek catatan penolakan'}`;
@@ -1076,105 +1075,98 @@ window.resubmitProject = function(regNo) {
 
           let actionHtml = "";
           if (currentUserRole === "PIC") {
-
-          // 1. KONDISI JIKA PROYEK DITOLAK / REVISI
-          if (p.status === "Revision Needed") {
-            actionHtml = `
-              <div style="display: flex; gap: 8px; align-items: center;">
-                <button 
-                  type="button"
-                  onclick="viewProjectDetail('${p.regNo}')" 
-                  style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
-                >
-                  📂 Berkas
-                </button>
-                <button 
-                  type="button"
-                  onclick="window.resubmitProject('${p.regNo}')" 
-                  style="background: #d97706; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
-                >
-                  ✏️ Perbaiki & Kirim Ulang
-                </button>
-              </div>
-            `;
-          } 
-          
-          // 2. KONDISI NORMAL (KODE LAMA KAMU MASUK KE SINI)
-          else {
-            const isFullyApproved = p.status === "Closed" || p.status === "Completed";
-            const hasUploaded = p.deliverableFile && p.deliverableFile !== "" && p.deliverableFile !== "-";
-
-            let uploadBtn = "";
-            if (!isFullyApproved) {
-              uploadBtn = `
-                <span 
-                  style="color: #64748b; font-size: 11px; font-weight: 600; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 4px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 4px;" 
-                  title="Menunggu persetujuan selesai sampai tahap akhir (Manager Risk)"
-                >
-                  🔒 Menunggu ACC
-                </span>`;
-            } else if (hasUploaded) {
-              uploadBtn = `
-                <button 
-                  type="button"
-                  onclick="showDeliverableForProject('${p.regNo}')" 
-                  style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
-                >
-                  🔍 Review / Edit
-                </button>`;
+            if (p.status === "Revision Needed") {
+              actionHtml = `
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button 
+                    type="button"
+                    onclick="viewProjectDetail('${p.regNo}')" 
+                    style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    📂 Berkas
+                  </button>
+                  <button 
+                    type="button"
+                    onclick="window.resubmitProject('${p.regNo}')" 
+                    style="background: #d97706; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    ✏️ Perbaiki & Kirim Ulang
+                  </button>
+                </div>
+              `;
             } else {
-              uploadBtn = `
-                <button 
-                  type="button"
-                  onclick="goToDeliverables('${p.regNo}')" 
-                  style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
-                >
-                  📤 Upload Laporan &rarr;
-                </button>`;
-            }
+              const isFullyApproved = p.status === "Closed" || p.status === "Completed";
+              const hasUploaded = p.deliverableFile && p.deliverableFile !== "" && p.deliverableFile !== "-";
 
+              let uploadBtn = "";
+              if (!isFullyApproved) {
+                uploadBtn = `
+                  <span 
+                    style="color: #64748b; font-size: 11px; font-weight: 600; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 4px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 4px;" 
+                    title="Menunggu persetujuan selesai sampai tahap akhir (Manager Risk)"
+                  >
+                    🔒 Menunggu ACC
+                  </span>`;
+              } else if (hasUploaded) {
+                uploadBtn = `
+                  <button 
+                    type="button"
+                    onclick="showDeliverableForProject('${p.regNo}')" 
+                    style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    🔍 Review / Edit
+                  </button>`;
+              } else {
+                uploadBtn = `
+                  <button 
+                    type="button"
+                    onclick="goToDeliverables('${p.regNo}')" 
+                    style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    📤 Upload Laporan &rarr;
+                  </button>`;
+              }
+
+              actionHtml = `
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button 
+                    type="button"
+                    onclick="viewProjectDetail('${p.regNo}')" 
+                    style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    📂 Berkas
+                  </button>
+                  ${uploadBtn}
+                </div>
+              `;
+            }
+          } else {
             actionHtml = `
-              <div style="display: flex; gap: 8px; align-items: center;">
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button 
+                  onclick="approveCurrentStep('${p.regNo}')" 
+                  title="Setujui Proyek"
+                  style="background: #16a34a; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
+                >
+                  ✓ ACC
+                </button>
+                <button 
+                  onclick="window.rejectCurrentStep('${p.regNo}')" 
+                  title="Tolak / Minta Revisi Proyek"
+                  style="background: #dc2626; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
+                >
+                  ✕ Tolak
+                </button>
                 <button 
                   type="button"
                   onclick="viewProjectDetail('${p.regNo}')" 
-                  style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
                 >
                   📂 Berkas
                 </button>
-                ${uploadBtn}
               </div>
             `;
           }
-
-        } else {
-          // Tombol untuk Approver lain (Manager, Fasilitator, dll)
-          actionHtml = `
-            <div style="display: flex; gap: 6px; align-items: center;">
-              <button 
-                onclick="approveCurrentStep('${p.regNo}')" 
-                title="Setujui Proyek"
-                style="background: #16a34a; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-              >
-                ✓ ACC
-              </button>
-              <button 
-                onclick="rejectCurrentStep('${p.regNo}')" 
-                title="Tolak / Minta Revisi Proyek"
-                style="background: #dc2626; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-              >
-                ✕ Tolak
-              </button>
-              <button 
-                type="button"
-                onclick="viewProjectDetail('${p.regNo}')" 
-                style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
-              >
-                📂 Berkas
-              </button>
-            </div>
-          `;
-        }
 
           const formattedRegDate = p.regDate
             ? new Date(p.regDate).toLocaleDateString("en-GB", {
@@ -1216,10 +1208,6 @@ window.resubmitProject = function(regNo) {
     (p) => p.currentStep > 2 || p.status === "Completed",
   );
   renderAllTable(approvedForRegistry);
-}
-
-function renderAllTable(data) {
-  // Tambahkan implementasi fungsi renderAllTable sesuai kebutuhan UI tabel registrasi/registry Anda
 }
 
 function filterAllProjects() {
