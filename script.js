@@ -903,11 +903,11 @@ function approveCurrentStep(regNo) {
   updateNotificationCount();
 }
 
-// ==========================================================================
-// FUNGSI TOLAK (REJECT) & KIRIM ULANG (RESUBMIT)
-// ==========================================================================
+// ==========================================
+// FUNGSI PENOLAKAN & KIRIM ULANG (GLOBAL WINDOW)
+// ==========================================
 
-function rejectCurrentStep(regNo) {
+window.rejectCurrentStep = function(regNo) {
   const project = projectList.find((p) => p.regNo === regNo);
   if (!project) return;
 
@@ -916,58 +916,41 @@ function rejectCurrentStep(regNo) {
     "Mohon lengkapi latar belakang masalah dan perbaiki estimasi biaya."
   );
 
-  if (reason === null) return; // Batal jika pengguna menekan tombol Cancel
+  if (reason === null) return; // Batal jika klik Cancel
 
   project.status = "Revision Needed";
-  project.currentStep = 1; // Dikembalikan langsung ke akun PIC / Leader (Step 1)
+  project.currentStep = 1; // Dikembalikan ke PIC (Step 1)
   project.progress = 10;
   project.rejectionNote = reason.trim() || "Mohon perbaiki data usulan proyek.";
 
   persistProjects();
   alert(`❌ Proyek ${regNo} berhasil dikembalikan ke PIC untuk diperbaiki.`);
-  renderTables();
-  renderParticipation();
-  updateNotificationCount();
-}
+  
+  if (typeof renderTables === 'function') renderTables();
+  if (typeof renderParticipation === 'function') renderParticipation();
+  if (typeof updateNotificationCount === 'function') updateNotificationCount();
+};
 
-function resubmitProject(regNo) {
+window.resubmitProject = function(regNo) {
   const project = projectList.find((p) => p.regNo === regNo);
-  if (!project) return;
+  if (!project) {
+    alert("Data proyek tidak ditemukan!");
+    return;
+  }
 
+  // Kembalikan status ke Pending dan naikkan ke antrean Fasilitator (Step 2)
   project.status = "Pending";
-  project.currentStep = 2; // Masuk kembali ke antrean Fasilitator (Step 2)
+  project.currentStep = 2;
   project.progress = 15;
-  delete project.rejectionNote; // Hapus catatan revisi lama
+  delete project.rejectionNote; // Hapus catatan revisi
 
   persistProjects();
   alert(`✅ Proyek ${regNo} berhasil diperbaiki dan dikirim kembali ke Fasilitator!`);
-  renderTables();
-  updateNotificationCount();
-}
-function renderTables() {
-  // 1. Render tabel Recent Projects di Dashboard
-  const recentEl = document.getElementById("recent");
-  if (recentEl) {
-    recentEl.innerHTML = projectList
-      .slice(0, 4)
-      .map((p) => {
-        const actionHtml =
-          currentUserRole === "CI_TEAM"
-            ? `<span class="action" style="cursor:pointer; color:#d97706; font-weight:600;" onclick="showPage('verification')">Review</span>`
-            : `<span style="color:#94a3b8; font-size:12px;">Read-Only</span>`;
 
-        return `
-        <tr>
-          <td><b>${p.regNo}</b></td>
-          <td>${p.title}</td>
-          <td>${p.dept}</td>
-          <td><span class="status ${statusClass(p.status)}">${p.status}</span></td>
-          <td>${actionHtml}</td>
-        </tr>
-      `;
-      })
-      .join("");
-  }
+  // Refresh tampilan
+  if (typeof renderTables === 'function') renderTables();
+  if (typeof updateNotificationCount === 'function') updateNotificationCount();
+};
 
   let filteredWorkspaceProjects = [];
   const workspaceBadge = document.getElementById("workspaceBadge");
