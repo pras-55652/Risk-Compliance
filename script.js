@@ -903,6 +903,10 @@ function approveCurrentStep(regNo) {
   updateNotificationCount();
 }
 
+// ==========================================================================
+// FUNGSI TOLAK (REJECT) & KIRIM ULANG (RESUBMIT)
+// ==========================================================================
+
 function rejectCurrentStep(regNo) {
   const project = projectList.find((p) => p.regNo === regNo);
   if (!project) return;
@@ -912,19 +916,34 @@ function rejectCurrentStep(regNo) {
     "Mohon lengkapi latar belakang masalah dan perbaiki estimasi biaya."
   );
 
-  if (reason === null) return; // Batal jika klik cancel
+  if (reason === null) return; // Batal jika pengguna menekan tombol Cancel
 
   project.status = "Revision Needed";
-  project.currentStep = 1; // Dikembalikan langsung ke akun PIC (Step 1)
+  project.currentStep = 1; // Dikembalikan langsung ke akun PIC / Leader (Step 1)
   project.progress = 10;
   project.rejectionNote = reason.trim() || "Mohon perbaiki data usulan proyek.";
 
   persistProjects();
   alert(`❌ Proyek ${regNo} berhasil dikembalikan ke PIC untuk diperbaiki.`);
   renderTables();
+  renderParticipation();
   updateNotificationCount();
 }
 
+function resubmitProject(regNo) {
+  const project = projectList.find((p) => p.regNo === regNo);
+  if (!project) return;
+
+  project.status = "Pending";
+  project.currentStep = 2; // Masuk kembali ke antrean Fasilitator (Step 2)
+  project.progress = 15;
+  delete project.rejectionNote; // Hapus catatan revisi lama
+
+  persistProjects();
+  alert(`✅ Proyek ${regNo} berhasil diperbaiki dan dikirim kembali ke Fasilitator!`);
+  renderTables();
+  updateNotificationCount();
+}
 function renderTables() {
   // 1. Render tabel Recent Projects di Dashboard
   const recentEl = document.getElementById("recent");
