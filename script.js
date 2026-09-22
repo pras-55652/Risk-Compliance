@@ -1055,69 +1055,94 @@ function renderTables() {
       myTableEl.innerHTML = filteredWorkspaceProjects
         .map((p) => {
           const currentApprover = approvalSteps[(p.currentStep || 1) - 1];
-          const approvalBadgeText =
-            p.status === "Completed" ? "Closed" : `Pending: ${currentApprover}`;
+
+          // 1. LOGIKA BADGE STATUS (REVISI ATAU PENDING/CLOSED)
+          let approvalBadgeText = "";
+          if (p.status === "Revision Needed") {
+            approvalBadgeText = `⚠️ Revisi: ${p.rejectionNote || 'Cek catatan penolakan'}`;
+          } else {
+            approvalBadgeText = p.status === "Completed" ? "Closed" : `Pending: ${currentApprover}`;
+          }
 
           let roleLabel = "Approver";
           if (currentUserRole === "PIC") roleLabel = "Leader";
           else if (currentUserRole === "FASILITATOR") roleLabel = "Fasilitator";
           else if (currentUserRole === "MANAGER") roleLabel = "Dept Manager";
           else if (currentUserRole === "CI_TEAM") roleLabel = "CI Verifier";
-          else if (currentUserRole === "FINANCE")
-            roleLabel = "Finance Verifier";
+          else if (currentUserRole === "FINANCE") roleLabel = "Finance Verifier";
           else if (currentUserRole === "MGR_RISK") roleLabel = "Risk Approver";
 
-        let actionHtml = "";
+          let actionHtml = "";
           if (currentUserRole === "PIC") {
-            // Disesuaikan dengan status "Closed" yang ada di gambar UI kamu
-            const isFullyApproved = p.status === "Closed" || p.status === "Completed";
-            const hasUploaded = p.deliverableFile && p.deliverableFile !== "" && p.deliverableFile !== "-";
-
-            let uploadBtn = "";
-            if (!isFullyApproved) {
-              // 1. Jika BELUM di-ACC sampai Manager Risk (Masih Pending)
-              uploadBtn = `
-                <span 
-                  style="color: #64748b; font-size: 11px; font-weight: 600; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 4px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 4px;" 
-                  title="Menunggu persetujuan selesai sampai tahap akhir (Manager Risk)"
-                >
-                  🔒 Menunggu ACC
-                </span>`;
-            } else if (hasUploaded) {
-              // 2. Jika SUDAH ACC & SUDAH upload berkas deliverable
-              uploadBtn = `
-                <button 
-                  type="button"
-                  onclick="showDeliverableForProject('${p.regNo}')" 
-                  style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                >
-                  🔍 Review / Edit
-                </button>`;
+            // 2. PENGECEKAN TOMBOL UNTUK AKUN PIC
+            if (p.status === "Revision Needed") {
+              // Jika proyek DITOLAK / BUTUH REVISI
+              actionHtml = `
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button 
+                    type="button"
+                    onclick="viewProjectDetail('${p.regNo}')" 
+                    style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    📂 Berkas
+                  </button>
+                  <button 
+                    onclick="resubmitProject('${p.regNo}')" 
+                    style="background: #d97706; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    ✏️ Perbaiki & Kirim Ulang
+                  </button>
+                </div>
+              `;
             } else {
-              // 3. Jika SUDAH ACC tapi BELUM upload berkas
-              uploadBtn = `
-                <button 
-                  type="button"
-                  onclick="goToDeliverables('${p.regNo}')" 
-                  style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
-                >
-                  📤 Upload Laporan &rarr;
-                </button>`;
-            }
+              // Jika status NORMAL (Pending / Approved)
+              const isFullyApproved = p.status === "Closed" || p.status === "Completed";
+              const hasUploaded = p.deliverableFile && p.deliverableFile !== "" && p.deliverableFile !== "-";
 
-            actionHtml = `
-              <div style="display: flex; gap: 8px; align-items: center;">
-                <button 
-                  type="button"
-                  onclick="viewProjectDetail('${p.regNo}')" 
-                  style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
-                >
-                  📂 Berkas
-                </button>
-                ${uploadBtn}
-              </div>
-            `;
+              let uploadBtn = "";
+              if (!isFullyApproved) {
+                uploadBtn = `
+                  <span 
+                    style="color: #64748b; font-size: 11px; font-weight: 600; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 4px; cursor: not-allowed; display: inline-flex; align-items: center; gap: 4px;" 
+                    title="Menunggu persetujuan selesai sampai tahap akhir (Manager Risk)"
+                  >
+                    🔒 Menunggu ACC
+                  </span>`;
+              } else if (hasUploaded) {
+                uploadBtn = `
+                  <button 
+                    type="button"
+                    onclick="showDeliverableForProject('${p.regNo}')" 
+                    style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    🔍 Review / Edit
+                  </button>`;
+              } else {
+                uploadBtn = `
+                  <button 
+                    type="button"
+                    onclick="goToDeliverables('${p.regNo}')" 
+                    style="background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    📤 Upload Laporan &rarr;
+                  </button>`;
+              }
+
+              actionHtml = `
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button 
+                    type="button"
+                    onclick="viewProjectDetail('${p.regNo}')" 
+                    style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+                  >
+                    📂 Berkas
+                  </button>
+                  ${uploadBtn}
+                </div>
+              `;
+            }
           } else {
+            // Tombol untuk Approver lain (Manager, Fasilitator, dll)
             actionHtml = `
               <div style="display: flex; gap: 6px; align-items: center;">
                 <button 
