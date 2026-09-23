@@ -2391,17 +2391,16 @@ window.getFilteredRegistryProjects = function(userRole) {
 };
 
 // ==========================================
-// FITUR EXPORT ALL PROJECTS REGISTRY KE CSV/EXCEL
+// FITUR EXPORT ALL PROJECTS REGISTRY (FIXED)
 // ==========================================
 
 function exportRegistryToCSV() {
-  // Hanya CI Administrator yang bisa mengekspor data ini
   if (window.currentUserRole !== "CI_TEAM") {
     alert("Akses ditolak: Hanya CI Administrator yang dapat mengekspor data All Projects Registry.");
     return;
   }
 
-  // Ambil data proyek yang masuk registry (Approved / currentStep > 2 / Completed)
+  // Ambil data proyek yang ada di All Projects Registry (Approved / Selesai)
   const approvedProjects = projectList.filter(
     (p) => p.currentStep > 2 || p.status === "Completed"
   );
@@ -2458,45 +2457,47 @@ function exportRegistryToCSV() {
   document.body.removeChild(link);
 }
 
-// Fungsi otomatis untuk menyisipkan tombol Export khusus CI Administrator di halaman All Projects Registry
-function injectRegistryExportButton() {
-  const allProjectsPage = document.getElementById("allprojects");
-  if (!allProjectsPage) return;
+// Fungsi langsung untuk menyisipkan tombol saat halaman All Projects dibuka
+function injectExportButtonDirectly() {
+  if (window.currentUserRole !== "CI_TEAM") return;
 
-  // Cek apakah tombol sudah pernah dibuat agar tidak berlipat ganda
+  const allProjectsSection = document.getElementById("allprojects");
+  if (!allProjectsSection) return;
+
+  // Cek jika tombol sudah ada, jangan didúpilikat
   if (document.getElementById("btnExportRegistry")) return;
 
-  // Jika role aktif adalah CI_TEAM, buat tombolnya
-  if (window.currentUserRole === "CI_TEAM") {
-    // Cari area filter/header di dalam halaman allprojects (misalnya di dekat dropdown departemen)
-    const filterContainer = allProjectsPage.querySelector("select")?.parentElement || allProjectsPage.querySelector("input")?.parentElement;
+  // Cari area filter/dropdown departemen di dalam halaman allprojects
+  const selectDropdown = allProjectsSection.querySelector("select");
+  if (selectDropdown) {
+    const parentWrapper = selectDropdown.parentElement;
     
-    if (filterContainer) {
-      const exportBtn = document.createElement("button");
-      exportBtn.id = "btnExportRegistry";
-      exportBtn.innerHTML = "📥 Export Excel/CSV";
-      exportBtn.style.cssText = "background: #16a34a; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;";
-      exportBtn.onclick = exportRegistryToCSV;
-      
-      filterContainer.style.display = "flex";
-      filterContainer.style.alignItems = "center";
-      filterContainer.style.flexWrap = "wrap";
-      filterContainer.style.gap = "8px";
-      filterContainer.appendChild(exportBtn);
-    }
+    const exportBtn = document.createElement("button");
+    exportBtn.id = "btnExportRegistry";
+    exportBtn.innerHTML = "📥 Export Excel/CSV";
+    exportBtn.style.cssText = "background: #16a34a; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;";
+    exportBtn.onclick = exportRegistryToCSV;
+    
+    parentWrapper.style.display = "flex";
+    parentWrapper.style.alignItems = "center";
+    parentWrapper.style.flexWrap = "wrap";
+    parentWrapper.style.gap = "8px";
+    parentWrapper.appendChild(exportBtn);
   }
 }
 
-// Pantau perpindahan halaman agar tombol otomatis muncul saat masuk menu All Projects Registry
-const registryExportObserver = new MutationObserver(() => {
-  if (window.currentPage === "allprojects" || document.getElementById("allprojects")?.classList.contains("active")) {
-    injectRegistryExportButton();
+// Kaitkan langsung ke fungsi navigasi showPage bawaan aplikasi
+const originalShowPageFunc = window.showPage;
+window.showPage = function(id) {
+  if (typeof originalShowPageFunc === 'function') {
+    originalShowPageFunc(id);
   }
-});
+  if (id === "allprojects") {
+    setTimeout(injectExportButtonDirectly, 150);
+  }
+};
 
-registryExportObserver.observe(document.body, {
-  childList: true,
-  subtree: true,
-  attributes: true,
-  attributeFilter: ['class', 'style']
+// Jalankan juga saat halaman pertama kali dimuat jika posisinya pas di allprojects
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(injectExportButtonDirectly, 500);
 });
