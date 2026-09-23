@@ -2391,16 +2391,15 @@ window.getFilteredRegistryProjects = function(userRole) {
 };
 
 // ==========================================
-// FITUR EXPORT ALL PROJECTS REGISTRY (FIXED)
+// EKSPORT DATA ALL PROJECTS REGISTRY
 // ==========================================
 
 function exportRegistryToCSV() {
   if (window.currentUserRole !== "CI_TEAM") {
-    alert("Akses ditolak: Hanya CI Administrator yang dapat mengekspor data All Projects Registry.");
+    alert("Akses ditolak: Hanya Administrator CI yang dapat mengekspor data All Projects Registry.");
     return;
   }
 
-  // Ambil data proyek yang ada di All Projects Registry (Approved / Selesai)
   const approvedProjects = projectList.filter(
     (p) => p.currentStep > 2 || p.status === "Completed"
   );
@@ -2457,47 +2456,41 @@ function exportRegistryToCSV() {
   document.body.removeChild(link);
 }
 
-// Fungsi langsung untuk menyisipkan tombol saat halaman All Projects dibuka
 function injectExportButtonDirectly() {
   if (window.currentUserRole !== "CI_TEAM") return;
 
   const allProjectsSection = document.getElementById("allprojects");
   if (!allProjectsSection) return;
 
-  // Cek jika tombol sudah ada, jangan didúpilikat
+  // Mencegah tombol dibuat berulang kali
   if (document.getElementById("btnExportRegistry")) return;
 
-  // Cari area filter/dropdown departemen di dalam halaman allprojects
-  const selectDropdown = allProjectsSection.querySelector("select");
-  if (selectDropdown) {
-    const parentWrapper = selectDropdown.parentElement;
-    
-    const exportBtn = document.createElement("button");
-    exportBtn.id = "btnExportRegistry";
-    exportBtn.innerHTML = "📥 Export Excel/CSV";
-    exportBtn.style.cssText = "background: #16a34a; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;";
-    exportBtn.onclick = exportRegistryToCSV;
-    
-    parentWrapper.style.display = "flex";
-    parentWrapper.style.alignItems = "center";
-    parentWrapper.style.flexWrap = "wrap";
-    parentWrapper.style.gap = "8px";
-    parentWrapper.appendChild(exportBtn);
+  const exportBtn = document.createElement("button");
+  exportBtn.id = "btnExportRegistry";
+  exportBtn.innerHTML = "📥 Export Excel/CSV";
+  exportBtn.style.cssText = "background: #16a34a; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);";
+  exportBtn.onclick = exportRegistryToCSV;
+
+  // Menyisipkan tombol langsung di atas tabel utama registry
+  const tableEl = allProjectsSection.querySelector("table");
+  if (tableEl && tableEl.parentElement) {
+    tableEl.parentElement.insertBefore(exportBtn, tableEl);
+  } else {
+    allProjectsSection.appendChild(exportBtn);
   }
 }
 
-// Kaitkan langsung ke fungsi navigasi showPage bawaan aplikasi
+// Menghubungkan ke navigasi aplikasi
 const originalShowPageFunc = window.showPage;
 window.showPage = function(id) {
   if (typeof originalShowPageFunc === 'function') {
     originalShowPageFunc(id);
   }
   if (id === "allprojects") {
-    setTimeout(injectExportButtonDirectly, 150);
+    setTimeout(injectExportButtonDirectly, 200);
   }
 };
 
-// Jalankan juga saat halaman pertama kali dimuat jika posisinya pas di allprojects
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(injectExportButtonDirectly, 500);
+  setTimeout(injectExportButtonDirectly, 1000);
 });
