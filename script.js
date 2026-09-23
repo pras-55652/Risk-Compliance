@@ -1257,7 +1257,6 @@ function renderAllTable(data) {
     })
     .join("");
 }
-
 // 2. FUNGSI FILTER (Berada di bawahnya secara terpisah)
 function filterAllProjects() {
   const searchInput = document.getElementById("searchAll");
