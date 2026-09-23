@@ -1210,7 +1210,6 @@ function renderTables() {
   renderAllTable(approvedForRegistry);
 }
 
-// 1. FUNGSI RENDER TABEL (Taruh di sini)
 function renderAllTable(data) {
   const allTableEl = document.getElementById("allTable");
   if (!allTableEl) return;
@@ -1218,7 +1217,7 @@ function renderAllTable(data) {
   if (!data || data.length === 0) {
     allTableEl.innerHTML = `
       <tr>
-        <td colspan="8" style="text-align: center; color: #94a3b8; padding: 28px;">
+        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 28px;">
           📁 <b>Belum ada proyek terdaftar yang disetujui (Approved / In Progress).</b>
         </td>
       </tr>
@@ -1234,11 +1233,6 @@ function renderAllTable(data) {
       const statusBadge = isCompleted
         ? `<span class="status green">✅ Closed</span>`
         : `<span class="status yellow">⏳ Pending: ${currentApprover}</span>`;
-
-      const hasFile = p.deliverableFile && p.deliverableFile !== "" && p.deliverableFile !== "-";
-      const berkasHtml = hasFile
-        ? `<button type="button" onclick="window.openDeliverablePdf('${p.regNo}')" style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;">📄 Lihat PDF</button>`
-        : `<span style="color: #94a3b8; font-size: 11.5px;">Belum Ada</span>`;
 
       return `
         <tr>
@@ -1258,7 +1252,6 @@ function renderAllTable(data) {
             </span>
           </td>
           <td><b>${p.progress}%</b></td>
-          <td>${berkasHtml}</td>
         </tr>
       `;
     })
