@@ -2389,3 +2389,114 @@ window.getFilteredRegistryProjects = function(userRole) {
     return window.projectRegistry.filter(p => p.status === "Approved");
   }
 };
+
+// ==========================================
+// FITUR EXPORT ALL PROJECTS REGISTRY KE CSV/EXCEL
+// ==========================================
+
+function exportRegistryToCSV() {
+  // Hanya CI Administrator yang bisa mengekspor data ini
+  if (window.currentUserRole !== "CI_TEAM") {
+    alert("Akses ditolak: Hanya CI Administrator yang dapat mengekspor data All Projects Registry.");
+    return;
+  }
+
+  // Ambil data proyek yang masuk registry (Approved / currentStep > 2 / Completed)
+  const approvedProjects = projectList.filter(
+    (p) => p.currentStep > 2 || p.status === "Completed"
+  );
+
+  if (approvedProjects.length === 0) {
+    alert("Tidak ada data proyek di All Projects Registry untuk diexport.");
+    return;
+  }
+
+  let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+  const headers = [
+    "No. Register",
+    "Tema Project",
+    "Departemen",
+    "Project Owner",
+    "Metode",
+    "Status Approval",
+    "Progress (%)"
+  ];
+
+  csvContent += headers.map((h) => `"${h}"`).join(",") + "\n";
+
+  approvedProjects.forEach((p) => {
+    const isClosed = p.status === "Completed" || p.status === "Closed";
+    const statusText = isClosed ? "Closed" : p.status;
+    
+    const cleanText = (val) => {
+      if (!val || val === "-") return "-";
+      return String(val).replace(/"/g, '""').replace(/\r?\n|\r/g, " ");
+    };
+
+    const row = [
+      `"${cleanText(p.regNo)}"`,
+      `"${cleanText(p.title)}"`,
+      `"${cleanText(p.dept)}"`,
+      `"${cleanText(p.owner)}"`,
+      `"${cleanText(p.method)}"`,
+      `"${statusText}"`,
+      `"${p.progress || 0}%"`
+    ].join(",");
+
+    csvContent += row + "\n";
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute(
+    "download",
+    `All_Projects_Registry_${new Date().toISOString().slice(0, 10)}.csv`,
+  );
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Fungsi otomatis untuk menyisipkan tombol Export khusus CI Administrator di halaman All Projects Registry
+function injectRegistryExportButton() {
+  const allProjectsPage = document.getElementById("allprojects");
+  if (!allProjectsPage) return;
+
+  // Cek apakah tombol sudah pernah dibuat agar tidak berlipat ganda
+  if (document.getElementById("btnExportRegistry")) return;
+
+  // Jika role aktif adalah CI_TEAM, buat tombolnya
+  if (window.currentUserRole === "CI_TEAM") {
+    // Cari area filter/header di dalam halaman allprojects (misalnya di dekat dropdown departemen)
+    const filterContainer = allProjectsPage.querySelector("select")?.parentElement || allProjectsPage.querySelector("input")?.parentElement;
+    
+    if (filterContainer) {
+      const exportBtn = document.createElement("button");
+      exportBtn.id = "btnExportRegistry";
+      exportBtn.innerHTML = "📥 Export Excel/CSV";
+      exportBtn.style.cssText = "background: #16a34a; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;";
+      exportBtn.onclick = exportRegistryToCSV;
+      
+      filterContainer.style.display = "flex";
+      filterContainer.style.alignItems = "center";
+      filterContainer.style.flexWrap = "wrap";
+      filterContainer.style.gap = "8px";
+      filterContainer.appendChild(exportBtn);
+    }
+  }
+}
+
+// Pantau perpindahan halaman agar tombol otomatis muncul saat masuk menu All Projects Registry
+const registryExportObserver = new MutationObserver(() => {
+  if (window.currentPage === "allprojects" || document.getElementById("allprojects")?.classList.contains("active")) {
+    injectRegistryExportButton();
+  }
+});
+
+registryExportObserver.observe(document.body, {
+  childList: true,
+  subtree: true,
+  attributes: true,
+  attributeFilter: ['class', 'style']
+});
