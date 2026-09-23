@@ -2391,7 +2391,7 @@ window.getFilteredRegistryProjects = function(userRole) {
 };
 
 // ==========================================
-// EKSPORT DATA ALL PROJECTS REGISTRY
+// EKSPORT DATA ALL PROJECTS REGISTRY (POSISI DI SEBELAH FILTER DEPARTEMEN)
 // ==========================================
 
 function exportRegistryToCSV() {
@@ -2465,18 +2465,43 @@ function injectExportButtonDirectly() {
   // Mencegah tombol dibuat berulang kali
   if (document.getElementById("btnExportRegistry")) return;
 
+  // Mencari dropdown filter departemen di dalam halaman All Projects Registry
+  // Berdasarkan gambar, elemen select berada di dalam baris filter bersama search bar
+  const selects = allProjectsSection.querySelectorAll("select");
+  let targetSelect = null;
+  
+  selects.forEach(sel => {
+    // Mencari select yang opsi di dalamnya mengandung kata "Departemen"
+    if (sel.innerText.includes("Departemen")) {
+      targetSelect = sel;
+    }
+  });
+
+  // Jika tidak ketemu berdasarkan teks, ambil select pertama di halaman allprojects
+  if (!targetSelect && selects.length > 0) {
+    targetSelect = selects[0];
+  }
+
   const exportBtn = document.createElement("button");
   exportBtn.id = "btnExportRegistry";
   exportBtn.innerHTML = "📥 Export Excel/CSV";
-  exportBtn.style.cssText = "background: #16a34a; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);";
+  exportBtn.style.cssText = "background: #16a34a; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-left: 10px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: 38px;";
   exportBtn.onclick = exportRegistryToCSV;
 
-  // Menyisipkan tombol langsung di atas tabel utama registry
-  const tableEl = allProjectsSection.querySelector("table");
-  if (tableEl && tableEl.parentElement) {
-    tableEl.parentElement.insertBefore(exportBtn, tableEl);
+  if (targetSelect) {
+    // Memasukkan tombol tepat di sebelah kanan elemen select filter departemen
+    targetSelect.parentNode.style.display = "flex";
+    targetSelect.parentNode.style.alignItems = "center";
+    targetSelect.parentNode.style.flexWrap = "wrap";
+    targetSelect.parentNode.appendChild(exportBtn);
   } else {
-    allProjectsSection.appendChild(exportBtn);
+    // Cadangan: jika elemen select tidak ditemukan, letakkan di atas tabel
+    const tableEl = allProjectsSection.querySelector("table");
+    if (tableEl && tableEl.parentElement) {
+      tableEl.parentElement.insertBefore(exportBtn, tableEl);
+    } else {
+      allProjectsSection.appendChild(exportBtn);
+    }
   }
 }
 
@@ -2487,7 +2512,7 @@ window.showPage = function(id) {
     originalShowPageFunc(id);
   }
   if (id === "allprojects") {
-    setTimeout(injectExportButtonDirectly, 200);
+    setTimeout(injectExportButtonDirectly, 250);
   }
 };
 
