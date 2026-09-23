@@ -1217,7 +1217,7 @@ function renderAllTable(data) {
   if (!data || data.length === 0) {
     allTableEl.innerHTML = `
       <tr>
-        <td colspan="7" style="text-align: center; color: #94a3b8; padding: 28px;">
+        <td colspan="8" style="text-align: center; color: #94a3b8; padding: 28px;">
           📁 <b>Belum ada proyek terdaftar yang disetujui (Approved / In Progress).</b>
         </td>
       </tr>
@@ -1252,11 +1252,22 @@ function renderAllTable(data) {
             </span>
           </td>
           <td><b>${p.progress}%</b></td>
+          <td>
+            <button 
+              type="button"
+              onclick="viewProjectDetail('${p.regNo}')" 
+              style="background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 4px; font-size: 11.5px; font-weight: 700; cursor: pointer;"
+              title="Lihat detail formulir registrasi"
+            >
+              📂 Berkas
+            </button>
+          </td>
         </tr>
       `;
     })
     .join("");
 }
+
 // 2. FUNGSI FILTER (Berada di bawahnya secara terpisah)
 function filterAllProjects() {
   const searchInput = document.getElementById("searchAll");
