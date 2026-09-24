@@ -2406,7 +2406,7 @@ window.getFilteredRegistryProjects = function(userRole) {
 // ==========================================
 
 function exportRegistryToCSV() {
-  if (window.currentUserRole !== "CI_TEAM") {
+  if (currentUserRole !== "CI_TEAM" && window.currentUserRole !== "CI_TEAM") {
     alert("Akses ditolak: Hanya Administrator CI yang dapat mengekspor data All Projects Registry.");
     return;
   }
@@ -2421,12 +2421,26 @@ function exportRegistryToCSV() {
   }
 
   let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+  
+  // Daftar kolom lengkap sesuai dengan formulir pendaftaran peserta
   const headers = [
     "No. Register",
-    "Tema Project",
     "Departemen",
-    "Project Owner",
-    "Metode",
+    "Section / Area",
+    "Metode Inovasi",
+    "Kategori Proyek",
+    "Tema Proyek (Registrasi)",
+    "Tema Akhir (Deliverable)",
+    "Leader / PIC",
+    "Kontak PIC",
+    "Nama Tim",
+    "Anggota Tim",
+    "Problem Statement",
+    "Improvement Target",
+    "Estimasi Cost Saving (Rp/Tahun)",
+    "Estimasi Investasi (Rp)",
+    "Target Deadline",
+    "Berkas Deliverable",
     "Status Approval",
     "Progress (%)"
   ];
@@ -2435,7 +2449,7 @@ function exportRegistryToCSV() {
 
   approvedProjects.forEach((p) => {
     const isClosed = p.status === "Completed" || p.status === "Closed";
-    const statusText = isClosed ? "Closed" : p.status;
+    const statusText = isClosed ? "Closed / Approved" : p.status;
     
     const cleanText = (val) => {
       if (!val || val === "-") return "-";
@@ -2444,10 +2458,22 @@ function exportRegistryToCSV() {
 
     const row = [
       `"${cleanText(p.regNo)}"`,
-      `"${cleanText(p.title)}"`,
       `"${cleanText(p.dept)}"`,
-      `"${cleanText(p.owner)}"`,
+      `"${cleanText(p.section)}"`,
       `"${cleanText(p.method)}"`,
+      `"${cleanText(p.category)}"`,
+      `"${cleanText(p.title)}"`,
+      `"${cleanText(p.finalTitle)}"`,
+      `"${cleanText(p.owner)}"`,
+      `"${cleanText(p.contact)}"`,
+      `"${cleanText(p.teamName)}"`,
+      `"${cleanText(p.teamMembers)}"`,
+      `"${cleanText(p.problemStatement)}"`,
+      `"${cleanText(p.improvementTarget)}"`,
+      `"${p.costSavingVal || 0}"`,
+      `"${p.costInvestmentVal || 0}"`,
+      `"${cleanText(p.deadline)}"`,
+      `"${cleanText(p.deliverableFile)}"`,
       `"${statusText}"`,
       `"${p.progress || 0}%"`
     ].join(",");
@@ -2460,7 +2486,7 @@ function exportRegistryToCSV() {
   link.setAttribute("href", encodedUri);
   link.setAttribute(
     "download",
-    `All_Projects_Registry_${new Date().toISOString().slice(0, 10)}.csv`,
+    `All_Projects_Registry_Complete_${new Date().toISOString().slice(0, 10)}.csv`,
   );
   document.body.appendChild(link);
   link.click();
