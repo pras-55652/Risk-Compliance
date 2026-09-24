@@ -268,6 +268,16 @@ function switchUserRole(newRole) {
     widgetCIQueue.style.display = newRole === "CI_TEAM" ? "block" : "none";
   }
 
+  const btnExportCsv = document.getElementById("btnExportCsv");
+  if (btnExportCsv) {
+    btnExportCsv.style.display = (currentUserRole === "CI_TEAM") ? "inline-block" : "none";
+  }
+
+  const btnExportVerif = document.getElementById("btnExportVerif");
+  if (btnExportVerif) {
+    btnExportVerif.style.display = (currentUserRole === "CI_TEAM") ? "inline-block" : "none";
+  }
+  
   renderNav();
   setupRegistrationFormRole();
   renderParticipation();
