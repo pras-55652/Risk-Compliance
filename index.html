@@ -1298,32 +1298,45 @@
             </div>
           </section>
 
-          <!-- 6. CI VERIFICATION & REVIEW (SUSUNAN TABEL SEPERTI GAMBAR 2) -->
-          <section class="page" id="verification">
-            <div class="headrow">
-              <div>
-                <h1>CI Verification &amp; Review</h1>
-                <div class="sub">
-                  Daftar tema proyek yang siap ditinjau dan divalidasi dokumen laporan akhirnya sebelum Closed resmi.
-                </div>
-              </div>
-              <div
-                style="
-                  padding: 6px 12px;
-                  border-radius: 6px;
-                  font-size: 12px;
-                  font-weight: 600;
-                  background: #f3e8ff;
-                  color: #6b21a8;
-                "
-              >
-                👑 Role: CI Super Admin Verifier
-              </div>
-            </div>
+          <!-- 6. CI VERIFICATION & REVIEW -->
+<section class="page" id="verification">
+  <div class="headrow">
+    <div>
+      <h1>CI Verification &amp; Review</h1>
+      <div class="sub">
+        Daftar tema proyek yang siap ditinjau dan divalidasi dokumen laporan akhirnya sebelum Closed resmi.
+      </div>
+    </div>
+    
+    <!-- Tambahan Kontainer Tombol Export & Badge Role -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button
+        class="primary"
+        id="btnExportVerif"
+        onclick="exportVerificationMatrixCSV()"
+        style="display: none;"
+      >
+        📥 Export ke CSV / Excel
+      </button>
 
-            <div class="card">
-              <div class="tablewrap">
-                <table>
+      <div
+        style="
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          background: #f3e8ff;
+          color: #6b21a8;
+        "
+      >
+        👑 Role: CI Super Admin Verifier
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tablewrap">
+      <table>
                   <thead>
                     <tr>
                       <th>No. Reg</th>
