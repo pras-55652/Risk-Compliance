@@ -812,7 +812,7 @@ function submitRegistration() {
     teamName: teamName || "-",
     teamMembers: memberNames.length > 0 ? memberNames.join(", ") : "-",
     method: method,
-    category: category,
+    category: "-",
     problemStatement: problem || "-",
     improvementTarget: target || "-",
     costSavingVal: Number(costVal) || 0,
