@@ -2536,3 +2536,48 @@ window.addEventListener('DOMContentLoaded', () => {
   setTimeout(injectExportButtonDirectly, 1000);
 });
 
+// ==========================================
+// FUNGSI ACC & LANJUT DENGAN CATATAN (REVISI)
+// ==========================================
+window.approveWithNote = function(regNo) {
+  const project = projectList.find((p) => p.regNo === regNo);
+  if (!project) return;
+
+  const note = prompt(
+    `Masukkan catatan atau masukan untuk proyek ${regNo}:`,
+    "Disetujui untuk dilanjutkan ke tahap berikutnya dengan catatan perbaikan."
+  );
+
+  if (note === null) return; // Jika user klik Cancel, batalkan aksi
+
+  // Simpan catatan ke dalam data proyek
+  project.approvalNote = note.trim() || "Dilanjutkan dengan catatan.";
+
+  // Proses kenaikan tahap (workflow) seperti fungsi ACC biasa
+  const currentStep = project.currentStep;
+  if (currentStep === 2) {
+    project.currentStep = 3;
+    project.progress = 35;
+  } else if (currentStep === 3) {
+    project.currentStep = 4;
+    project.progress = 55;
+  } else if (currentStep === 4) {
+    project.currentStep = 5;
+    project.progress = 75;
+  } else if (currentStep === 5) {
+    project.currentStep = 6;
+    project.progress = 90;
+  } else if (currentStep === 6) {
+    project.status = "Completed";
+    project.progress = 100;
+  }
+
+  // Simpan perubahan ke localStorage
+  persistProjects();
+  alert(`✅ Proyek ${regNo} berhasil disetujui & dilanjutkan dengan catatan!`);
+
+  // Refresh tampilan tabel & notifikasi
+  if (typeof renderTables === 'function') renderTables();
+  if (typeof renderParticipation === 'function') renderParticipation();
+  if (typeof updateNotificationCount === 'function') updateNotificationCount();
+};
