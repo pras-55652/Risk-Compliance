@@ -757,7 +757,6 @@ function submitRegistration() {
   const section = document.getElementById("section")?.value || "";
   const method = document.getElementById("ciMethod")?.value || "";
   const title = document.getElementById("projectTitle")?.value || "";
-  const category = document.getElementById("projectCategory")?.value || "";
   const owner = document.getElementById("projectOwner")?.value || "";
   const contact = document.getElementById("picContact")?.value || "";
   const teamNameEl = document.getElementById("teamName");
