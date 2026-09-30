@@ -1429,13 +1429,20 @@ function showWorkflowModal(regNo) {
   const currentRoleName = isCompleted
     ? "Resmi Ditutup (Closed)"
     : approvalSteps[currentStep - 1] || "Selesai";
+  
   const noteEl = document.getElementById("modalWorkflowNote");
   if (noteEl) {
     noteEl.innerHTML = `💡 <b>Posisi Persetujuan Saat Ini:</b> ${
       isCompleted
         ? "Proyek ini telah melalui seluruh proses persetujuan dan resmi ditutup."
-        : `Menunggu review &amp; ACC dari <b>${currentRoleName}</b> (Tahap ${currentStep} dari 6).`
-    }`;
+        : `Menunggu review &amp; ACC dari <b>${currentRoleName}</b> (Tahap${currentStep} dari 6).`
+    }
+    
+    ${p.approvalNote ? `
+    <div style="margin-top: 12px; background: #fffbeb; padding: 10px; border-left: 4px solid #f59e0b; border-radius: 4px; font-size: 12.5px; color: #92400e;">
+      <b>📝 Catatan Lanjut dari Approver:</b><br>
+      <i>"${p.approvalNote}"</i>
+    </div>` : ''}`;
   }
 
   const modal = document.getElementById("workflowModal");
