@@ -1149,8 +1149,9 @@ function renderTables() {
                 </div>
               `;
             }
-          } else {
-            <div style="display: flex; gap: 6px; align-items: center;">
+         } else {
+            actionHtml = `
+              <div style="display: flex; gap: 6px; align-items: center;">
                 <button 
                   onclick="approveCurrentStep('${p.regNo}')" 
                   title="Setujui Proyek"
@@ -1159,11 +1160,12 @@ function renderTables() {
                   ✓ ACC
                 </button>
                 <button 
-                  onclick="window.rejectCurrentStep('${p.regNo}')" 
-                  title="Tolak / Minta Revisi Proyek"
-                  style="background: #dc2626; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
+                  type="button"
+                  onclick="approveWithNote('${p.regNo}')" 
+                  title="Setujui dan Lanjutkan dengan Catatan"
+                  style="background: #d97706; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;"
                 >
-                  ✕ Tolak
+                  ✓ 📝 Catatan
                 </button>
                 <button 
                   type="button"
