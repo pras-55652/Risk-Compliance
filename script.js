@@ -1476,38 +1476,24 @@ function viewProjectDetail(regNo) {
         <button onclick="closeProjectDetailModal()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: #64748b;">&times;</button>
       </div>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; color: #334155;">
-        <div><b>Departemen:</b> ${p.dept || '-'}</div>
-        <div><b>Section / Area:</b> ${p.section || '-'}</div>
-        <div><b>Metode Inovasi:</b> ${p.method || '-'}</div>
-        <div><b>Kategori Proyek:</b> ${p.category || '-'}</div>
-        <div style="grid-column: span 2;"><b>Tema Proyek (Registrasi):</b> ${p.title || '-'}</div>
-        <div><b>Leader / PIC:</b> ${p.owner || '-'}</div>
-        <div><b>Kontak PIC:</b> ${p.contact || '-'}</div>
-        <div><b>Nama Tim:</b> ${p.teamName || '-'}</div>
-        <div style="grid-column: span 2;"><b>Anggota Tim:</b> ${p.teamMembers || '-'}</div>
-        <div style="grid-column: span 2;"><b>Problem Statement:</b><br><div style="background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 4px; border: 1px solid #e2e8f0;">${p.problemStatement || '-'}</div></div>
-        <div style="grid-column: span 2;"><b>Improvement Target:</b><br><div style="background: #f8fafc; padding: 8px; border-radius: 4px; margin-top: 4px; border: 1px solid #e2e8f0;">${p.improvementTarget || '-'}</div></div>
-        <div><b>Estimasi Cost Saving:</b> Rp ${Number(p.costSavingVal || 0).toLocaleString('id-ID')} / Tahun</div>
+      <div><b>Estimasi Cost Saving:</b> Rp ${Number(p.costSavingVal || 0).toLocaleString('id-ID')} / Tahun</div>
         <div><b>Estimasi Investasi:</b> Rp ${Number(p.costInvestmentVal || 0).toLocaleString('id-ID')}</div>
         <div><b>Target Deadline:</b> ${p.deadline || '-'}</div>
-        <div><b>Status Saat Ini:</b> <span style="font-weight: 600; color: #0284c7;">${p.status} (Step ${p.currentStep || 1})</span></div>
+        <div><b>Status Saat Ini:</b> <span style="font-weight: 600; color: #0284c7;">${p.status} (Step${p.currentStep || 1})</span></div>
+        
+        <!-- BAGIAN BARU UNTUK MENAMPILKAN CATATAN -->
+        ${p.approvalNote ? `
+        <div style="grid-column: span 2; background: #fffbeb; border: 1px dashed #f59e0b; padding: 10px; border-radius: 6px; margin-top: 8px;">
+          <b style="color: #d97706;">📝 Catatan / Masukan Terakhir:</b><br>
+          <span style="color: #92400e; font-style: italic;">"${p.approvalNote}"</span>
+        </div>` : ''}
+        <!-- ==================================== -->
+        
       </div>
 
       <div style="text-align: right; margin-top: 20px;">
         <button onclick="closeProjectDetailModal()" style="background: #475569; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600;">Tutup</button>
       </div>
-    </div>
-  `;
-  modal.style.display = "flex";
-}
-
-function closeProjectDetailModal() {
-  const modal = document.getElementById("projectDetailModal");
-  if (modal) {
-    modal.style.display = "none";
-  }
-}
 // ==========================================
 // 7. MENU 5: PROJECT DELIVERABLES
 // ==========================================
