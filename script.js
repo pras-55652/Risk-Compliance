@@ -1149,7 +1149,7 @@ function renderTables() {
                 </div>
               `;
             }
-         } else {
+          } else {
             actionHtml = `
               <div style="display: flex; gap: 6px; align-items: center;">
                 <button 
