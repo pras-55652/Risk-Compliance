@@ -1150,8 +1150,7 @@ function renderTables() {
               `;
             }
           } else {
-            actionHtml = `
-              <div style="display: flex; gap: 6px; align-items: center;">
+            <div style="display: flex; gap: 6px; align-items: center;">
                 <button 
                   onclick="approveCurrentStep('${p.regNo}')" 
                   title="Setujui Proyek"
@@ -1176,7 +1175,7 @@ function renderTables() {
               </div>
             `;
           }
-
+    
           const formattedRegDate = p.regDate
             ? new Date(p.regDate).toLocaleDateString("en-GB", {
                 day: "2-digit",
