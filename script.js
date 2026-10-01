@@ -2592,3 +2592,11 @@ window.approveWithNote = function(regNo) {
   if (typeof renderParticipation === 'function') renderParticipation();
   if (typeof updateNotificationCount === 'function') updateNotificationCount();
 };
+
+// FUNGSI UNTUK MENUTUP MODAL DETAIL REGISTRASI PROYEK
+function closeProjectDetailModal() {
+  const modal = document.getElementById("projectDetailModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
