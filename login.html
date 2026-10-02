@@ -61,19 +61,19 @@
       <form onsubmit="handleAuth(event)">
         <div class="field">
           <label>Email Perusahaan / Akun *</label>
-          <input type="email" id="email" placeholder="email@bakrie-autoparts.com" oninput="checkDeveloperEmail(this.value)" required />
+          <input type="email" id="email" placeholder="email@bakrie-autoparts.com" required />
         </div>
 
-        <!-- Dropdown Khusus Developer -->
+        <!-- Dropdown Pilihan Role (Tampil untuk Semua Orang) -->
         <div class="dev-box" id="devRoleBox">
-          <div class="dev-title">⚙️ Developer Mode (Pilih Role Testing)</div>
+          <div class="dev-title"> Pilih Role / Hak Akses Masuk</div>
           <select id="devSelectedRole">
-            <option value="CI_TEAM">👑 CI Team (Super Admin)</option>
-            <option value="PIC">✍️ PIC / Team Leader (Operational)</option>
-            <option value="FASILITATOR">🧭 Fasilitator Lapangan (Operational)</option>
-            <option value="MANAGER">🏛️ Department Manager (Operational)</option>
-            <option value="FINANCE">💰 Finance Verifier (Financial Directorate)</option>
-            <option value="MGR_RISK">🛡️ Head of Risk & Compliance</option>
+            <option value="CI_TEAM"> CI Team (Super Admin)</option>
+            <option value="PIC"> PIC / Team Leader (Operational)</option>
+            <option value="FASILITATOR"> Fasilitator Lapangan (Operational)</option>
+            <option value="MANAGER"> Department Manager (Operational)</option>
+            <option value="FINANCE"> Finance Verifier (Financial Directorate)</option>
+            <option value="MGR_RISK"> Head of Risk & Compliance</option>
           </select>
         </div>
 
