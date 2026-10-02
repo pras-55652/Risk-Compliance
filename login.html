@@ -61,19 +61,19 @@
       <form onsubmit="handleAuth(event)">
         <div class="field">
           <label>Email Perusahaan / Akun *</label>
-          <input type="email" id="email" placeholder="email@bakrie-autoparts.com" required />
+          <input type="email" id="email" placeholder="email@bakrie-autoparts.com" oninput="checkDeveloperEmail(this.value)" required />
         </div>
 
-        <!-- Dropdown Pilihan Role (Tampil untuk Semua Orang) -->
+        <!-- Dropdown Khusus Developer -->
         <div class="dev-box" id="devRoleBox">
-          <div class="dev-title"> Pilih Role / Hak Akses Masuk</div>
+          <div class="dev-title">⚙️ Developer Mode (Pilih Role Testing)</div>
           <select id="devSelectedRole">
-            <option value="CI_TEAM"> CI Team (Super Admin)</option>
-            <option value="PIC"> PIC / Team Leader (Operational)</option>
-            <option value="FASILITATOR"> Fasilitator Lapangan (Operational)</option>
-            <option value="MANAGER"> Department Manager (Operational)</option>
-            <option value="FINANCE"> Finance Verifier (Financial Directorate)</option>
-            <option value="MGR_RISK"> Head of Risk & Compliance</option>
+            <option value="CI_TEAM">👑 CI Team (Super Admin)</option>
+            <option value="PIC">✍️ PIC / Team Leader (Operational)</option>
+            <option value="FASILITATOR">🧭 Fasilitator Lapangan (Operational)</option>
+            <option value="MANAGER">🏛️ Department Manager (Operational)</option>
+            <option value="FINANCE">💰 Finance Verifier (Financial Directorate)</option>
+            <option value="MGR_RISK">🛡️ Head of Risk & Compliance</option>
           </select>
         </div>
 
@@ -187,18 +187,32 @@
         }
       }
 
-    function handleAuth(e) {
+      function handleAuth(e) {
         e.preventDefault();
         const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
         const assignedRole = determineRole(email);
 
-        // Menyimpan role yang dipilih ke memori browser
-        localStorage.setItem("binnovate_user_role", assignedRole);
-        localStorage.setItem("binnovate_user_email", email);
-
-        // Langsung masuk ke dashboard tanpa batasan email terdaftar di Firebase
-        alert("Berhasil masuk sebagai " + assignedRole + " (" + email + ")!");
-        window.location.href = "index.html";
+        if (isLoginMode) {
+          auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+              localStorage.setItem("binnovate_user_role", assignedRole);
+              window.location.href = "index.html";
+            })
+            .catch((error) => {
+              alert("Gagal Login: Email atau Password salah.");
+            });
+        } else {
+          auth.createUserWithEmailAndPassword(email, password)
+            .then(() => {
+              localStorage.setItem("binnovate_user_role", assignedRole);
+              alert("Akun berhasil didaftarkan! Masuk ke Dashboard...");
+              window.location.href = "index.html";
+            })
+            .catch((error) => {
+              alert("Gagal Daftar: " + error.message);
+            });
+        }
       }
 
          function loginWithGoogle() {
